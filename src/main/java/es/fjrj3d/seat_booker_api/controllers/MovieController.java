@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin("*")
 @RestController
@@ -15,22 +16,27 @@ public class MovieController {
     @Autowired
     private MovieService movieService;
 
-    @PostMapping(path = "/post")
+    @PostMapping
     public Movie createMovie(@RequestBody Movie movie){
         return movieService.createMovie(movie);
     }
 
-    @GetMapping(path = "/get")
+    @GetMapping
     public List<Movie> getAllMovies(){
         return movieService.getAllMovies();
     }
 
-    @PutMapping(path = "/put/{id}")
+    @GetMapping(path = "/{id}")
+    public Optional<Movie> getMovieById(@PathVariable Long id){
+        return movieService.getMovieById(id);
+    }
+
+    @PutMapping(path = "/{id}")
     public Movie updateMovie(@RequestBody Movie movie, @PathVariable Long id){
         return movieService.updateMovie(movie, id);
     }
 
-    @DeleteMapping(path = "/delete/{id}")
+    @DeleteMapping(path = "/{id}")
     public void deleteMovie(@PathVariable Long id){
         movieService.deleteMovie(id);
     }
