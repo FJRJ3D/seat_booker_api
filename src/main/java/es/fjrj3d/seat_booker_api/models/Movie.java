@@ -38,6 +38,10 @@ public class Movie {
     @Column
     private EMovieAgeRating ageRating;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private EMovieUserRating userRating;
+
     @Column
     private String coverImageUrl;
 
@@ -49,8 +53,11 @@ public class Movie {
     @Column
     private LocalDate premiere;
 
-
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Set<Room> rooms;
+
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<Review> reviews;
 }

@@ -24,6 +24,9 @@ public class Seat {
     private int row;
 
     @Column
+    private int seat;
+
+    @Column
     private String seatName;
 
     @ManyToOne(fetch = FetchType.LAZY)

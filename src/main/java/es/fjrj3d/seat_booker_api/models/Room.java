@@ -30,10 +30,10 @@ public class Room {
     private ERoomType roomType;
 
     @Column
-    private Integer rowSeat;
+    private Integer rowQuantity;
 
     @Column
-    private Integer numberSeat;
+    private Integer seatQuantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id")
