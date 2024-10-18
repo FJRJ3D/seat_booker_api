@@ -31,10 +31,10 @@ public class Seat {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "screening_id")
-    @JsonBackReference
+    @JsonBackReference("screening-seat")
     private Screening screening;
 
     @OneToOne(mappedBy = "seat", fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("seat-ticket")
     private Ticket ticket;
 }

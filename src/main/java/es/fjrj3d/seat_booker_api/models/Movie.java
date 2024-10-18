@@ -54,10 +54,10 @@ public class Movie {
     private LocalDate premiere;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("movie-room")
     private Set<Room> rooms;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("movie-review")
     private Set<Review> reviews;
 }
