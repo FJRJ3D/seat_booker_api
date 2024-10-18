@@ -25,12 +25,12 @@ public class MovieController {
         return movieService.getAllMovies();
     }
 
-    @PutMapping(path = "/put")
+    @PutMapping(path = "/put/{id}")
     public Movie updateMovie(@RequestBody Movie movie, @PathVariable Long id){
         return movieService.updateMovie(movie, id);
     }
 
-    @DeleteMapping(path = "/delete")
+    @DeleteMapping(path = "/delete/{id}")
     public void deleteMovie(@PathVariable Long id){
         movieService.deleteMovie(id);
     }
