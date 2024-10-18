@@ -1,5 +1,7 @@
 package es.fjrj3d.seat_booker_api.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,4 +25,13 @@ public class Seat {
 
     @Column
     private String seatName;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "screening_id")
+    @JsonBackReference
+    private Screening screening;
+
+    @OneToOne(mappedBy = "seat", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private Ticket ticket;
 }

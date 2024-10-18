@@ -1,5 +1,6 @@
 package es.fjrj3d.seat_booker_api.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,4 +28,9 @@ public class Ticket {
 
     @Column
     private String userName;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "seat_id")
+    @JsonBackReference
+    private Seat seat;
 }

@@ -1,6 +1,8 @@
 package es.fjrj3d.seat_booker_api.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +11,7 @@ import lombok.Setter;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Entity
 @Table
@@ -31,4 +34,13 @@ public class Screening {
 
     @Column
     private boolean availability;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id")
+    @JsonBackReference
+    private Room room;
+
+    @OneToMany(mappedBy = "screening", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<Seat> seats;
 }
