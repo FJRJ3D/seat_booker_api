@@ -37,10 +37,10 @@ public class Screening {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
-    @JsonBackReference
+    @JsonBackReference("room-screening")
     private Room room;
 
     @OneToMany(mappedBy = "screening", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("screening-seat")
     private Set<Seat> seats;
 }
