@@ -14,7 +14,7 @@ import java.util.Optional;
 public class MovieService {
 
     @Autowired
-    private IMovieRepository iMovieRepository;
+    IMovieRepository iMovieRepository;
 
     public Movie createMovie(@Valid Movie movie) {
         return iMovieRepository.save(movie);
@@ -30,16 +30,18 @@ public class MovieService {
 
     public Movie updateMovie(Movie movie, Long id) {
         if (!iMovieRepository.existsById(id)) {
-            throw new MovieNotFoundException("Película no encontrada con ID: " + id);
+            throw new MovieNotFoundException("Movie not found with ID: " + id);
         }
         movie.setId(id);
         return iMovieRepository.save(movie);
     }
 
-    public void deleteMovie(Long id) {
+    public boolean deleteMovie(Long id) {
         if (!iMovieRepository.existsById(id)) {
-            throw new MovieNotFoundException("Película no encontrada con ID: " + id);
+            throw new MovieNotFoundException("Movie not found with ID: " + id);
+        }else {
+            iMovieRepository.deleteById(id);
+            return true;
         }
-        iMovieRepository.deleteById(id);
     }
 }
