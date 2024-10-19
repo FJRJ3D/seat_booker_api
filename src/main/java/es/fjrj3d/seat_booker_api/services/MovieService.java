@@ -1,7 +1,9 @@
 package es.fjrj3d.seat_booker_api.services;
 
+import es.fjrj3d.seat_booker_api.exceptions.MovieNotFoundException;
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,24 +16,30 @@ public class MovieService {
     @Autowired
     private IMovieRepository iMovieRepository;
 
-    public Movie createMovie(Movie movie){
+    public Movie createMovie(@Valid Movie movie) {
         return iMovieRepository.save(movie);
     }
 
-    public List<Movie> getAllMovies(){
+    public List<Movie> getAllMovies() {
         return iMovieRepository.findAll();
     }
 
-    public Optional<Movie> getMovieById(Long id){
+    public Optional<Movie> getMovieById(Long id) {
         return iMovieRepository.findById(id);
     }
 
-    public Movie updateMovie(Movie movie, Long id){
+    public Movie updateMovie(Movie movie, Long id) {
+        if (!iMovieRepository.existsById(id)) {
+            throw new MovieNotFoundException("Película no encontrada con ID: " + id);
+        }
         movie.setId(id);
         return iMovieRepository.save(movie);
     }
 
-    public void deleteMovie(Long id){
+    public void deleteMovie(Long id) {
+        if (!iMovieRepository.existsById(id)) {
+            throw new MovieNotFoundException("Película no encontrada con ID: " + id);
+        }
         iMovieRepository.deleteById(id);
     }
 }
