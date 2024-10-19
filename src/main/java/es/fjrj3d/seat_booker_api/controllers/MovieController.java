@@ -33,7 +33,7 @@ public class MovieController {
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
         return movieService.getMovieById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build()); // 404 Not Found
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping(path = "/{id}")
