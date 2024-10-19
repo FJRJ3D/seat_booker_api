@@ -14,24 +14,24 @@ public class RoomService {
     @Autowired
     private IRoomRepository iRoomRepository;
 
-    public Room createMovie(Room room){
+    public Room createRoom(Room room){
         return iRoomRepository.save(room);
     }
 
-    public List<Room> getAllMovies(){
+    public List<Room> getAllRooms(){
         return iRoomRepository.findAll();
     }
 
-    public Optional<Room> getMovieById(Long id){
+    public Optional<Room> getRoomById(Long id){
         return iRoomRepository.findById(id);
     }
 
-    public Room updateMovie(Room room, Long id){
+    public Room updateRoom(Room room, Long id){
         room.setId(id);
         return iRoomRepository.save(room);
     }
 
-    public void deleteMovie(Long id){
+    public void deleteRoom(Long id){
         iRoomRepository.deleteById(id);
     }
 }
