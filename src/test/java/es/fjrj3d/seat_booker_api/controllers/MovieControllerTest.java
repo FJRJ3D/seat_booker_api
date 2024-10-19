@@ -8,12 +8,12 @@ import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.services.MovieService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -26,14 +26,15 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(MovieController.class)
-class MovieControllerIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class MovieControllerTest {
 
     @Mock
     private MovieService movieService;
+
+    @InjectMocks
+    private MovieController movieController;
+
+    private MockMvc mockMvc;
 
     private Movie interstellar;
     private Movie titanic;
@@ -43,10 +44,13 @@ class MovieControllerIntegrationTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(movieController).build();
+
         interstellar = new Movie();
         interstellar.setId(1L);
         interstellar.setTitle("Interstellar");
-        interstellar.setSynopsis("Interstellar is a science fiction film directed by Christopher Nolan that explores themes of love.");
+        interstellar.setSynopsis("Interstellar is a science fiction film directed by Christopher Nolan that explores" +
+                "themes of love.");
         interstellar.setGenre(EMovieGenre.SCIENCE_FICTION);
         interstellar.setAgeRating(EMovieAgeRating.SEVEN_PLUS);
         interstellar.setUserRating(EMovieUserRating.FIVE_STARS);
@@ -57,7 +61,8 @@ class MovieControllerIntegrationTest {
         titanic = new Movie();
         titanic.setId(2L);
         titanic.setTitle("Titanic");
-        titanic.setSynopsis("Titanic is a romantic drama directed by James Cameron, telling the story of Jack and Rose.");
+        titanic.setSynopsis("Titanic is a romantic drama directed by James Cameron, telling the story of Jack and" +
+                "Rose.");
         titanic.setGenre(EMovieGenre.DRAMA);
         titanic.setAgeRating(EMovieAgeRating.EIGHTEEN_PLUS);
         titanic.setUserRating(EMovieUserRating.FIVE_STARS);
