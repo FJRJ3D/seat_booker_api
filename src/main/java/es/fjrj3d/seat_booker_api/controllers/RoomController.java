@@ -17,27 +17,27 @@ public class RoomController {
     private RoomService roomService;
 
     @PostMapping
-    public Room createMovie(@RequestBody Room room){
-        return roomService.createMovie(room);
+    public Room createRoom(@RequestBody Room room){
+        return roomService.createRoom(room);
     }
 
     @GetMapping
-    public List<Room> getAllMovies(){
-        return roomService.getAllMovies();
+    public List<Room> getAllRooms(){
+        return roomService.getAllRooms();
     }
 
     @GetMapping(path = "/{id}")
-    public Optional<Room> getMovieById(@PathVariable Long id){
-        return roomService.getMovieById(id);
+    public Optional<Room> getRoomById(@PathVariable Long id){
+        return roomService.getRoomById(id);
     }
 
     @PutMapping(path = "/{id}")
-    public Room updateMovie(@RequestBody Room room, @PathVariable Long id){
-        return roomService.updateMovie(room, id);
+    public Room updateRoom(@RequestBody Room room, @PathVariable Long id){
+        return roomService.updateRoom(room, id);
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteMovie(@PathVariable Long id){
-        roomService.deleteMovie(id);
+    public void deleteRoom(@PathVariable Long id){
+        roomService.deleteRoom(id);
     }
 }
