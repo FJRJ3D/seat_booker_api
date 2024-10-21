@@ -3,6 +3,7 @@ package es.fjrj3d.seat_booker_api.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class Room {
     private Long id;
 
     @Column
+    @NotNull
     private String roomName;
 
     @Enumerated(EnumType.STRING)
@@ -30,9 +32,11 @@ public class Room {
     private ERoomType roomType;
 
     @Column
+    @NotNull
     private Integer rowQuantity;
 
     @Column
+    @NotNull
     private Integer seatQuantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
