@@ -80,7 +80,11 @@ class MovieControllerTest {
 
         mockMvc.perform(post("/api/movie")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\":\"Interstellar\",\"synopsis\":\"Interstellar is a science fiction film directed by Christopher Nolan that explores themes of love.\",\"genre\":\"SCIENCE_FICTION\",\"ageRating\":\"SEVEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":\"https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg\",\"duration\":\"PT2H49M\",\"premiere\":\"2014-11-07\"}"))
+                        .content("{\"title\":\"Interstellar\",\"synopsis\":\"Interstellar is a science fiction film " +
+                                "directed by Christopher Nolan that explores themes of love.\",\"genre\":" +
+                                "\"SCIENCE_FICTION\",\"ageRating\":\"SEVEN_PLUS\",\"userRating\":\"FIVE_STARS\"," +
+                                "\"coverImageUrl\":\"https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X" +
+                                "_400x400.jpeg\",\"duration\":\"PT2H49M\",\"premiere\":\"07-11-2014\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.title").value("Interstellar"));
@@ -120,18 +124,27 @@ class MovieControllerTest {
 
         mockMvc.perform(put("/api/movie/2")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\":\"Titanic\",\"synopsis\":\"Titanic is a romantic drama directed by James Cameron, telling the story of Jack and Rose.\",\"genre\":\"DRAMA\",\"ageRating\":\"EIGHTEEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":\"https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg\",\"duration\":\"PT3H15M\",\"premiere\":\"1997-12-19\"}"))
+                        .content("{\"title\":\"Titanic\",\"synopsis\":\"Titanic is a romantic drama directed by " +
+                                "James Cameron, telling the story of Jack and Rose.\",\"genre\":\"DRAMA\",\"" +
+                                "ageRating\":\"EIGHTEEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":" +
+                                "\"https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg\",\"duration\":" +
+                                "\"PT3H15M\",\"premiere\":\"19-12-1997\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Titanic"));
     }
 
     @Test
     void should_return_not_found_for_update_when_movie_does_not_exist() throws Exception {
-        when(movieService.updateMovie(any(Movie.class), eq(3L))).thenThrow(new MovieNotFoundException("Movie not found"));
+        when(movieService.updateMovie(any(Movie.class), eq(3L))).thenThrow(new MovieNotFoundException("Movie " +
+                "not found"));
 
         mockMvc.perform(put("/api/movie/3")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\":\"Titanic\",\"synopsis\":\"Titanic is a romantic drama directed by James Cameron, telling the story of Jack and Rose.\",\"genre\":\"DRAMA\",\"ageRating\":\"EIGHTEEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":\"https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg\",\"duration\":\"PT3H15M\",\"premiere\":\"1997-12-19\"}"))
+                        .content("{\"title\":\"Titanic\",\"synopsis\":\"Titanic is a romantic drama directed by James" +
+                                " Cameron, telling the story of Jack and Rose.\",\"genre\":\"DRAMA\",\"ageRating\":" +
+                                "\"EIGHTEEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":\"https://upload" +
+                                ".wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg\",\"duration\":\"PT3H15M\",\"" +
+                                "premiere\":\"19-12-1997\"}"))
                 .andExpect(status().isNotFound());
     }
 

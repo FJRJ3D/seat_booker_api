@@ -51,7 +51,6 @@ public class Movie {
     @Column
     private String coverImageUrl;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
     @Column
     private Duration duration;
 
