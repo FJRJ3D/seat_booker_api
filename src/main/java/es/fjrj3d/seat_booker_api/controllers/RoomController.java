@@ -35,6 +35,12 @@ public class RoomController {
         return new ResponseEntity<>(room, HttpStatus.OK);
     }
 
+    @GetMapping(path = "/movie/{movieTitle}")
+    public ResponseEntity<List<Room>> getRoomsByMovieTitle(@PathVariable String movieTitle) {
+        List<Room> rooms = roomService.getRoomsByMovieTitle(movieTitle);
+        return new ResponseEntity<>(rooms, HttpStatus.OK);
+    }
+
     @PutMapping(path = "/{id}")
     public ResponseEntity<Room> updateRoom(@RequestBody Room room, @PathVariable Long id) {
         Room updatedRoom = roomService.updateRoom(room, id);
