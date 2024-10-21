@@ -1,10 +1,9 @@
 package es.fjrj3d.seat_booker_api.controllers;
 
+import es.fjrj3d.seat_booker_api.models.Screening;
 import es.fjrj3d.seat_booker_api.services.ScreeningService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin("*")
 @RestController
@@ -12,5 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class ScreeningController {
 
     @Autowired
-    private ScreeningService screeningService;
+    ScreeningService screeningService;
+
+    @PostMapping(path = "/{roomName}")
+    public Screening createScreening (@RequestBody Screening screening, @PathVariable String roomName) {
+        return screeningService.createScreening(screening, roomName);
+    }
 }
