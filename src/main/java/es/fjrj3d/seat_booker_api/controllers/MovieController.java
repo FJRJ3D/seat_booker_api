@@ -1,12 +1,15 @@
 package es.fjrj3d.seat_booker_api.controllers;
 
+import es.fjrj3d.seat_booker_api.exceptions.MovieNotFoundException;
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.services.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin("*")
 @RestController
@@ -14,30 +17,43 @@ import java.util.Optional;
 public class MovieController {
 
     @Autowired
-    private MovieService movieService;
+    MovieService movieService;
 
     @PostMapping
-    public Movie createMovie(@RequestBody Movie movie){
-        return movieService.createMovie(movie);
+    public ResponseEntity<Movie> createMovie(@Valid @RequestBody Movie movie) {
+        Movie createdMovie = movieService.createMovie(movie);
+        return ResponseEntity.status(201).body(createdMovie);
     }
 
     @GetMapping
-    public List<Movie> getAllMovies(){
-        return movieService.getAllMovies();
+    public ResponseEntity<List<Movie>> getAllMovies() {
+        List<Movie> movies = movieService.getAllMovies();
+        return ResponseEntity.ok(movies);
     }
 
     @GetMapping(path = "/{id}")
-    public Optional<Movie> getMovieById(@PathVariable Long id){
-        return movieService.getMovieById(id);
+    public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
+        return movieService.getMovieById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping(path = "/{id}")
-    public Movie updateMovie(@RequestBody Movie movie, @PathVariable Long id){
-        return movieService.updateMovie(movie, id);
+    public ResponseEntity<Movie> updateMovie(@Valid @RequestBody Movie movie, @PathVariable Long id) {
+        Movie updatedMovie = movieService.updateMovie(movie, id);
+        return ResponseEntity.ok(updatedMovie);
     }
 
     @DeleteMapping(path = "/{id}")
-    public void deleteMovie(@PathVariable Long id){
-        movieService.deleteMovie(id);
+    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
+        if (movieService.deleteMovie(id)) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(MovieNotFoundException.class)
+    public ResponseEntity<String> handleMovieNotFoundException(MovieNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

@@ -3,13 +3,16 @@ package es.fjrj3d.seat_booker_api.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Set;
 
 @Entity
@@ -25,9 +28,12 @@ public class Movie {
     private Long id;
 
     @Column
+    @NotNull
+    @Size(min = 1, max = 100)
     private String title;
 
     @Column
+    @Size(max = 1000)
     private String synopsis;
 
     @Enumerated(EnumType.STRING)
@@ -45,12 +51,12 @@ public class Movie {
     @Column
     private String coverImageUrl;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
     @Column
-    private LocalTime duration;
+    private Duration duration;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Column
+    @Future
     private LocalDate premiere;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
