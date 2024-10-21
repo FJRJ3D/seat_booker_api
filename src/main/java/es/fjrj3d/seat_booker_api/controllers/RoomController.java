@@ -17,9 +17,9 @@ public class RoomController {
     @Autowired
     RoomService roomService;
 
-    @PostMapping(path = "/{movieId}")
-    public ResponseEntity<Room> createRoom(@RequestBody Room room, @PathVariable Long movieId) {
-        Room createdRoom = roomService.createRoom(room, movieId);
+    @PostMapping(path = "/{movieTitle}")
+    public ResponseEntity<Room> createRoom(@RequestBody Room room, @PathVariable String movieTitle) {
+        Room createdRoom = roomService.createRoom(room, movieTitle);
         return new ResponseEntity<>(createdRoom, HttpStatus.CREATED);
     }
 

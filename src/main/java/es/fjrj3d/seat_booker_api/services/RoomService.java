@@ -15,14 +15,14 @@ import java.util.List;
 public class RoomService {
 
     @Autowired
-    private IRoomRepository iRoomRepository;
+    IRoomRepository iRoomRepository;
 
     @Autowired
-    private IMovieRepository iMovieRepository;
+    IMovieRepository iMovieRepository;
 
-    public Room createRoom(Room room, Long movieId) {
-        Movie movie = iMovieRepository.findById(movieId)
-                .orElseThrow(() -> new MovieNotFoundException("Movie not found with id: " + movieId));
+    public Room createRoom(Room room, String movieTitle) {
+        Movie movie = iMovieRepository.findByTitle(movieTitle)
+                .orElseThrow(() -> new MovieNotFoundException("Movie not found with title: " + movieTitle));
         room.setMovie(movie);
         return iRoomRepository.save(room);
     }
@@ -34,6 +34,13 @@ public class RoomService {
     public Room getRoomById(Long id) {
         return iRoomRepository.findById(id)
                 .orElseThrow(() -> new RoomNotFoundException("Room not found with id: " + id));
+    }
+
+    public List<Room> getRoomsByMovieTitle(String movieTitle) {
+        Movie movie = iMovieRepository.findByTitle(movieTitle)
+                .orElseThrow(() -> new MovieNotFoundException("Movie not found with title: " + movieTitle));
+
+        return iRoomRepository.findByMovieId(movie.getId());
     }
 
     public Room updateRoom(Room room, Long id) {
