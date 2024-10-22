@@ -26,8 +26,6 @@ public class SeatService {
 
             for (int seat = 1; seat <= seatQuantity; seat++) {
                 Seat newSeat = new Seat();
-                newSeat.setRow(row);
-                newSeat.setSeat(seat);
                 newSeat.setSeatName("Seat " + rowLetter + "-" + seat);
                 newSeat.setScreening(screening);
                 seats.add(newSeat);
