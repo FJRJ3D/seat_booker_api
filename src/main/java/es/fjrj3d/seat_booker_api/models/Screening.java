@@ -11,7 +11,7 @@ import lombok.Setter;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table
@@ -42,7 +42,7 @@ public class Screening {
 
     @OneToMany(mappedBy = "screening", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("screening-seat")
-    private Set<Seat> seats;
+    private List<Seat> seats;
 
     public Integer getRowQuantity() {
         return room != null ? room.getRowQuantity() : null;
