@@ -33,7 +33,7 @@ public class Screening {
     private Duration duration;
 
     @Column
-    private boolean availability;
+    private boolean availability = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
@@ -43,4 +43,12 @@ public class Screening {
     @OneToMany(mappedBy = "screening", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("screening-seat")
     private Set<Seat> seats;
+
+    public Integer getRowQuantity() {
+        return room != null ? room.getRowQuantity() : null;
+    }
+
+    public Integer getSeatQuantity() {
+        return room != null ? room.getSeatQuantity() : null;
+    }
 }
