@@ -1,5 +1,6 @@
 package es.fjrj3d.seat_booker_api.services;
 
+import es.fjrj3d.seat_booker_api.exceptions.RoomAlreadyExistsException;
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.models.Room;
 import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
@@ -21,8 +22,13 @@ public class RoomService {
     IMovieRepository iMovieRepository;
 
     public Room createRoom(Room room, String movieTitle) {
+        iRoomRepository.findByRoomName(room.getRoomName()).ifPresent(existingRoom -> {
+            throw new RoomAlreadyExistsException("Room already exists with name: " + room.getRoomName());
+        });
+
         Movie movie = iMovieRepository.findByTitle(movieTitle)
                 .orElseThrow(() -> new MovieNotFoundException("Movie not found with title: " + movieTitle));
+
         room.setMovie(movie);
         return iRoomRepository.save(room);
     }
