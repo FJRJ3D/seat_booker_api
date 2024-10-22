@@ -62,4 +62,9 @@ public class RoomService {
         }
         iRoomRepository.deleteById(id);
     }
+
+    public Room getRoomByName(String roomName) {
+        return iRoomRepository.findByRoomName(roomName)
+                .orElseThrow(() -> new RoomNotFoundException("Room not found with name: " + roomName));
+    }
 }

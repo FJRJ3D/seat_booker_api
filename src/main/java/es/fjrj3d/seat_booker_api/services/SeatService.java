@@ -1,5 +1,6 @@
 package es.fjrj3d.seat_booker_api.services;
 
+import es.fjrj3d.seat_booker_api.models.Room;
 import es.fjrj3d.seat_booker_api.models.Screening;
 import es.fjrj3d.seat_booker_api.models.Seat;
 import es.fjrj3d.seat_booker_api.repositories.ISeatRepository;
@@ -15,9 +16,9 @@ public class SeatService {
     @Autowired
     ISeatRepository iSeatRepository;
 
-    public void createSeatsForScreening(Screening screening) {
-        int rowQuantity = screening.getRowQuantity();
-        int seatQuantity = screening.getSeatQuantity();
+    public void createSeatsForScreening(Screening screening, Room room) {
+        int rowQuantity = room.getRowQuantity();
+        int seatQuantity = room.getSeatQuantity();
         List<Seat> seats = new ArrayList<>();
         char[] rowLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
 

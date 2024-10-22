@@ -43,12 +43,4 @@ public class Screening {
     @OneToMany(mappedBy = "screening", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("screening-seat")
     private List<Seat> seats;
-
-    public Integer getRowQuantity() {
-        return room != null ? room.getRowQuantity() : null;
-    }
-
-    public Integer getSeatQuantity() {
-        return room != null ? room.getSeatQuantity() : null;
-    }
 }
