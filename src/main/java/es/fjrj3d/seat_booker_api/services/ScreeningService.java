@@ -78,8 +78,20 @@ public class ScreeningService {
 
             if (!remaining.isNegative() && !remaining.isZero()) {
                 webSocketService.sendDurationUpdate(screening.getId(), remaining);
+                Optional<Screening> optionalScreening = iScreeningRepository.findById(screening.getId());
+                if (optionalScreening.isPresent()) {
+                    Screening screeningToUpdate = optionalScreening.get();
+                    screeningToUpdate.setAvailability(true);
+                    iScreeningRepository.save(screeningToUpdate);
+                }
             } else {
                 webSocketService.sendScreeningEnded(screening.getId());
+                Optional<Screening> optionalScreening = iScreeningRepository.findById(screening.getId());
+                if (optionalScreening.isPresent()) {
+                    Screening screeningToUpdate = optionalScreening.get();
+                    screeningToUpdate.setAvailability(false);
+                    iScreeningRepository.save(screeningToUpdate);
+                }
             }
         }
     }
