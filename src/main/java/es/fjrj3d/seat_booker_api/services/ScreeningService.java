@@ -6,6 +6,7 @@ import es.fjrj3d.seat_booker_api.models.Room;
 import es.fjrj3d.seat_booker_api.models.Screening;
 import es.fjrj3d.seat_booker_api.repositories.IRoomRepository;
 import es.fjrj3d.seat_booker_api.repositories.IScreeningRepository;
+import es.fjrj3d.seat_booker_api.utils.DurationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -88,7 +89,7 @@ public class ScreeningService {
 
             if (timeUntilScreening.isNegative() || timeUntilScreening.isZero()) {
                 if (!remaining.isNegative() && !remaining.isZero()) {
-                    message = "Remaining duration: " + formatDuration(remaining);
+                    message = "Remaining duration: " + DurationUtils.formatDuration(remaining);
                     webSocketService.sendDurationUpdate(screening.getId(), message);
                     updateAvailability(screening.getId(), true);
                 } else {
@@ -96,7 +97,7 @@ public class ScreeningService {
                     updateAvailability(screening.getId(), false);
                 }
             } else {
-                message = "Time until screening: " + formatDuration(timeUntilScreening);
+                message = "Time until screening: " + DurationUtils.formatDuration(timeUntilScreening);
                 webSocketService.sendDurationUpdate(screening.getId(), message);
                 updateAvailability(screening.getId(), true);
             }
@@ -110,12 +111,5 @@ public class ScreeningService {
             screeningToUpdate.setAvailability(availability);
             iScreeningRepository.save(screeningToUpdate);
         }
-    }
-
-    private String formatDuration(Duration duration) {
-        long hours = duration.toHours();
-        long minutes = duration.toMinutes() % 60;
-        long seconds = duration.toSeconds() % 60;
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 }
