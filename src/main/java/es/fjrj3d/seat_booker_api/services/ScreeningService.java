@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -65,8 +66,15 @@ public class ScreeningService {
 
     public Duration calculateRemainingDuration(Screening screening) {
         LocalDateTime now = LocalDateTime.now();
-        Duration timeElapsed = Duration.between(screening.getSchedule(), now);
+        LocalDateTime screeningDateTime = screening.getSchedule().atDate(LocalDate.now());
+        Duration timeElapsed = Duration.between(screeningDateTime, now);
         return screening.getDuration().minus(timeElapsed);
+    }
+
+    public Duration calculateTimeUntilScreening(Screening screening) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime screeningDateTime = screening.getSchedule().atDate(LocalDate.now());
+        return Duration.between(now, screeningDateTime);
     }
 
     @Scheduled(fixedRate = 1000)
@@ -75,24 +83,29 @@ public class ScreeningService {
 
         for (Screening screening : screenings) {
             Duration remaining = calculateRemainingDuration(screening);
+            Duration timeUntilScreening = calculateTimeUntilScreening(screening);
 
-            if (!remaining.isNegative() && !remaining.isZero()) {
-                webSocketService.sendDurationUpdate(screening.getId(), remaining);
-                Optional<Screening> optionalScreening = iScreeningRepository.findById(screening.getId());
-                if (optionalScreening.isPresent()) {
-                    Screening screeningToUpdate = optionalScreening.get();
-                    screeningToUpdate.setAvailability(true);
-                    iScreeningRepository.save(screeningToUpdate);
+            if (timeUntilScreening.isNegative() || timeUntilScreening.isZero()) {
+                if (!remaining.isNegative() && !remaining.isZero()) {
+                    webSocketService.sendDurationUpdate(screening.getId(), remaining);
+                    updateAvailability(screening.getId(), true);
+                } else {
+                    webSocketService.sendScreeningEnded(screening.getId());
+                    updateAvailability(screening.getId(), false);
                 }
             } else {
-                webSocketService.sendScreeningEnded(screening.getId());
-                Optional<Screening> optionalScreening = iScreeningRepository.findById(screening.getId());
-                if (optionalScreening.isPresent()) {
-                    Screening screeningToUpdate = optionalScreening.get();
-                    screeningToUpdate.setAvailability(false);
-                    iScreeningRepository.save(screeningToUpdate);
-                }
+                webSocketService.sendDurationUpdate(screening.getId(), timeUntilScreening);
+                updateAvailability(screening.getId(), true);
             }
+        }
+    }
+
+    private void updateAvailability(Long screeningId, boolean availability) {
+        Optional<Screening> optionalScreening = iScreeningRepository.findById(screeningId);
+        if (optionalScreening.isPresent()) {
+            Screening screeningToUpdate = optionalScreening.get();
+            screeningToUpdate.setAvailability(availability);
+            iScreeningRepository.save(screeningToUpdate);
         }
     }
 }
