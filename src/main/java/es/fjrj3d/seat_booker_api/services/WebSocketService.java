@@ -4,16 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-
 @Service
 public class WebSocketService {
 
     @Autowired
     SimpMessagingTemplate messagingTemplate;
 
-    public void sendDurationUpdate(Long screeningId, Duration remainingDuration) {
-        messagingTemplate.convertAndSend("/topic/screening/" + screeningId, remainingDuration.toString());
+    public void sendDurationUpdate(Long screeningId, String message) {
+        messagingTemplate.convertAndSend("/topic/screening/" + screeningId, message);
     }
 
     public void sendScreeningEnded(Long screeningId) {

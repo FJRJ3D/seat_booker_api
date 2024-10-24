@@ -84,17 +84,20 @@ public class ScreeningService {
         for (Screening screening : screenings) {
             Duration remaining = calculateRemainingDuration(screening);
             Duration timeUntilScreening = calculateTimeUntilScreening(screening);
+            String message;
 
             if (timeUntilScreening.isNegative() || timeUntilScreening.isZero()) {
                 if (!remaining.isNegative() && !remaining.isZero()) {
-                    webSocketService.sendDurationUpdate(screening.getId(), remaining);
+                    message = "Remaining duration: " + formatDuration(remaining);
+                    webSocketService.sendDurationUpdate(screening.getId(), message);
                     updateAvailability(screening.getId(), true);
                 } else {
                     webSocketService.sendScreeningEnded(screening.getId());
                     updateAvailability(screening.getId(), false);
                 }
             } else {
-                webSocketService.sendDurationUpdate(screening.getId(), timeUntilScreening);
+                message = "Time until screening: " + formatDuration(timeUntilScreening);
+                webSocketService.sendDurationUpdate(screening.getId(), message);
                 updateAvailability(screening.getId(), true);
             }
         }
@@ -107,5 +110,12 @@ public class ScreeningService {
             screeningToUpdate.setAvailability(availability);
             iScreeningRepository.save(screeningToUpdate);
         }
+    }
+
+    private String formatDuration(Duration duration) {
+        long hours = duration.toHours();
+        long minutes = duration.toMinutes() % 60;
+        long seconds = duration.toSeconds() % 60;
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 }
