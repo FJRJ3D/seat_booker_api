@@ -45,6 +45,6 @@ public class User {
     private Set<Ticket> tickets;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("user-ticket")
+    @JsonManagedReference("user-token")
     private List<Token> tokens;
 }
