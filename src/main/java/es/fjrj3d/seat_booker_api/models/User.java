@@ -2,37 +2,35 @@ package es.fjrj3d.seat_booker_api.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
+@Data
+@Builder
 @Entity
 @Table
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(unique = true)
     private String userName;
 
     @Column
     private String password;
 
-    @Column
+    @Column(unique = true)
     private String email;
 
-    @Enumerated(EnumType.STRING)
-    @Column
-    private EUserRole role;
+//    @Enumerated(EnumType.STRING)
+//    @Column
+//    private EUserRole role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("user-review")
@@ -45,4 +43,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("user-ticket")
     private Set<Ticket> tickets;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-ticket")
+    private List<Token> tokens;
 }
