@@ -28,9 +28,9 @@ public class User {
     @Column(unique = true)
     private String email;
 
-//    @Enumerated(EnumType.STRING)
-//    @Column
-//    private EUserRole role;
+    @Enumerated(EnumType.STRING)
+    @Column
+    private EUserRole role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("user-review")

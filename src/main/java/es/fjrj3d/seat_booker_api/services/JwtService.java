@@ -31,6 +31,15 @@ public class JwtService {
         return jwtToken.getSubject();
     }
 
+    public String extractRole(final String token) {
+        final Claims jwtToken = Jwts.parser()
+                .verifyWith(getSignInKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return jwtToken.get("role", String.class);
+    }
+
     public String generateToken(final User user) {
         return buildToken(user, jwtExpiration);
     }
@@ -43,6 +52,7 @@ public class JwtService {
         return Jwts.builder()
                 .id(user.getId().toString())
                 .claims(Map.of("name", user.getUserName()))
+                .claim("role", user.getRole().name())
                 .subject(user.getEmail())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
