@@ -1,6 +1,7 @@
 package es.fjrj3d.seat_booker_api.services;
 
 import es.fjrj3d.seat_booker_api.exceptions.UserNotFoundException;
+import es.fjrj3d.seat_booker_api.models.EUserRole;
 import es.fjrj3d.seat_booker_api.models.User;
 import es.fjrj3d.seat_booker_api.repositories.IUserRepository;
 import jakarta.validation.Valid;
@@ -33,6 +34,13 @@ public class UserService {
             throw new UserNotFoundException("User not found with ID: " + id);
         }
         user.setId(id);
+        return iUserRepository.save(user);
+    }
+
+    public User updateUserRole(Long userId, EUserRole newRole) {
+        User user = iUserRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+        user.setRole(newRole);
         return iUserRepository.save(user);
     }
 

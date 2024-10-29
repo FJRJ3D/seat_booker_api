@@ -54,7 +54,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         final String jwtToken = authHeader.substring(7);
         final String userEmail = jwtService.extractUsername(jwtToken);
-        final String role = jwtService.extractRole(jwtToken);
 
         if (userEmail == null || SecurityContextHolder.getContext().getAuthentication() != null) {
             return;
@@ -78,6 +77,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (!isTokenValid) {
             return;
         }
+
+        final String role = jwtService.extractRole(jwtToken);
 
         final var authToken = new UsernamePasswordAuthenticationToken(
                 userDetails,

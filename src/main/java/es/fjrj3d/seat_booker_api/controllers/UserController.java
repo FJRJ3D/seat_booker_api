@@ -1,6 +1,7 @@
 package es.fjrj3d.seat_booker_api.controllers;
 
 import es.fjrj3d.seat_booker_api.exceptions.UserNotFoundException;
+import es.fjrj3d.seat_booker_api.models.EUserRole;
 import es.fjrj3d.seat_booker_api.models.User;
 import es.fjrj3d.seat_booker_api.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,12 @@ public class UserController {
     @PutMapping(path = "/{id}")
     public ResponseEntity<User> updateUser(@Valid @RequestBody User user, @PathVariable Long id) {
         User updatedUser = userService.updateUser(user, id);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @PutMapping("/{newRole}/{id}")
+    public ResponseEntity<User> updateUserRole(@PathVariable Long id, @PathVariable EUserRole newRole) {
+        User updatedUser = userService.updateUserRole(id, newRole);
         return ResponseEntity.ok(updatedUser);
     }
 

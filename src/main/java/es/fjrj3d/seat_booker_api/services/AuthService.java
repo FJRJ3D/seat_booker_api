@@ -4,6 +4,7 @@ import es.fjrj3d.seat_booker_api.dtos.request.LoginRequest;
 import es.fjrj3d.seat_booker_api.dtos.request.RegisterRequest;
 import es.fjrj3d.seat_booker_api.dtos.response.TokenResponse;
 import es.fjrj3d.seat_booker_api.models.ETokenType;
+import es.fjrj3d.seat_booker_api.models.EUserRole;
 import es.fjrj3d.seat_booker_api.models.Token;
 import es.fjrj3d.seat_booker_api.models.User;
 import es.fjrj3d.seat_booker_api.repositories.ITokenRepository;
@@ -28,10 +29,13 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public TokenResponse register(final RegisterRequest request){
+        long userCount = iUserRepository.count();
+
         final User user = User.builder()
                 .userName(request.userName())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
+                .role(userCount == 0 ? EUserRole.ADMIN : EUserRole.USER)
                 .build();
         final User savedUser = iUserRepository.save(user);
         final String jwtToken = jwtService.generateToken(user);
