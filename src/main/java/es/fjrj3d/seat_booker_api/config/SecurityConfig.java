@@ -32,7 +32,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/api/auth/**")
+                        req.requestMatchers("/api/auth/**", "/seat-booker-websocket")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
