@@ -8,10 +8,10 @@ import es.fjrj3d.seat_booker_api.models.Token;
 import es.fjrj3d.seat_booker_api.models.User;
 import es.fjrj3d.seat_booker_api.repositories.ITokenRepository;
 import es.fjrj3d.seat_booker_api.repositories.IUserRepository;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,36 +27,37 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public TokenResponse register(RegisterRequest request){
-        var user = User.builder()
+    public TokenResponse register(final RegisterRequest request){
+        final User user = User.builder()
                 .userName(request.userName())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .build();
-        var savedUser = iUserRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        final User savedUser = iUserRepository.save(user);
+        final String jwtToken = jwtService.generateToken(user);
+        final String refreshToken = jwtService.generateRefreshToken(user);
         savedUserToken(savedUser, jwtToken);
         return new TokenResponse(jwtToken, refreshToken);
     }
 
-    public TokenResponse login(LoginRequest request){
+    public TokenResponse login(final LoginRequest request){
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.email(),
                         request.password()
                 )
         );
-        var user = iUserRepository.findByEmail(request.email())
+        final User user = iUserRepository.findByEmail(request.email())
                 .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        final String accessToken = jwtService.generateToken(user);
+        final String refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
-        return new TokenResponse(jwtToken, refreshToken);
+        savedUserToken(user, accessToken);
+        return new TokenResponse(accessToken, refreshToken);
     }
 
     private void  savedUserToken(User user, String jwtToken){
-        var token = Token.builder()
+        final Token token = Token.builder()
                 .user(user)
                 .token(jwtToken)
                 .tokenType(ETokenType.BEARER)
@@ -67,39 +68,37 @@ public class AuthService {
     }
 
     private void revokeAllUserTokens(final User user) {
-        final List<Token> validUserTokens = tokenRepository
-                .findAllValidIsFalseOrRevokedIsFalseByUserId(user.getId());
+        final List<Token> validUserTokens = tokenRepository.findAllValidIsFalseOrRevokedIsFalseByUserId(user.getId());
         if (!validUserTokens.isEmpty()) {
-            for (final Token token : validUserTokens) {
+            validUserTokens.forEach(token -> {
                 token.setExpired(true);
                 token.setRevoked(true);
-            }
+            });
             tokenRepository.saveAll(validUserTokens);
         }
     }
 
-    public TokenResponse refreshToken(final String authHeader){
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Invalid Bearer token");
-        }
+    public TokenResponse refreshToken(@NotNull final String authentication) {
 
-        final String refreshToken = authHeader.substring(7);
+        if (authentication == null || !authentication.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Invalid auth header");
+        }
+        final String refreshToken = authentication.substring(7);
         final String userEmail = jwtService.extractUsername(refreshToken);
-
         if (userEmail == null) {
-            throw new IllegalArgumentException("Invalid Refresh Token");
+            return null;
         }
 
-        final User user = iUserRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UsernameNotFoundException(userEmail));
-
-        if (!jwtService.isTokenValid(refreshToken, user)) {
-            throw  new IllegalArgumentException("Invalid Refresh Token");
+        final User user = this.iUserRepository.findByEmail(userEmail).orElseThrow();
+        final boolean isTokenValid = jwtService.isTokenValid(refreshToken, user);
+        if (!isTokenValid) {
+            return null;
         }
 
-        final String accessToken = jwtService.generateToken(user);
+        final String accessToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         savedUserToken(user, accessToken);
+
         return new TokenResponse(accessToken, refreshToken);
     }
 }
