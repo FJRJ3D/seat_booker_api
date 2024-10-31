@@ -1,5 +1,7 @@
 package es.fjrj3d.seat_booker_api.services;
 
+import com.stripe.model.Customer;
+import com.stripe.param.CustomerCreateParams;
 import es.fjrj3d.seat_booker_api.dtos.request.LoginRequest;
 import es.fjrj3d.seat_booker_api.dtos.request.RegisterRequest;
 import es.fjrj3d.seat_booker_api.dtos.response.TokenResponse;
@@ -37,6 +39,14 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.password()))
                 .role(userCount == 0 ? EUserRole.ADMIN : EUserRole.USER)
                 .build();
+
+        try {
+            String customerId = createCustomer(request.email());
+            user.setStripeCustomerId(customerId);
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating customer in Stripe", e);
+        }
+
         final User savedUser = iUserRepository.save(user);
         final String jwtToken = jwtService.generateToken(user);
         final String refreshToken = jwtService.generateRefreshToken(user);
@@ -104,5 +114,14 @@ public class AuthService {
         savedUserToken(user, accessToken);
 
         return new TokenResponse(accessToken, refreshToken);
+    }
+
+    private String createCustomer(String email) throws Exception {
+        CustomerCreateParams params = CustomerCreateParams.builder()
+                .setEmail(email)
+                .build();
+
+        Customer customer = Customer.create(params);
+        return customer.getId();
     }
 }

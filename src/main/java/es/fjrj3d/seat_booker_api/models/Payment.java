@@ -19,6 +19,18 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
+    private String cardNumber;
+
+    @Column
+    private Long expMonth;
+
+    @Column
+    private Long expYear;
+
+    @Column
+    private String cvc;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonBackReference("user-payment")
