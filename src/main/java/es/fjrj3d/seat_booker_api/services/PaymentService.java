@@ -35,9 +35,9 @@ public class PaymentService {
                     .build());
 
             Payment payment = new Payment();
-            payment.setPaymentMethodToken(paymentMethodId);
-            payment.setPaymentMethodType(paymentMethod.getType());
-            payment.setPaymentMethodId(paymentMethod.getId());
+            payment.setPaymentToken(paymentMethodId);
+            payment.setPaymentType(paymentMethod.getType());
+            payment.setPaymentId(paymentMethod.getId());
             payment.setUser(user);
             iPaymentRepository.save(payment);
 

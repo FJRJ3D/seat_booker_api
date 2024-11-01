@@ -20,13 +20,13 @@ public class Payment {
     private Long id;
 
     @Column
-    private String paymentMethodToken;
+    private String paymentToken;
 
     @Column
-    private String paymentMethodId;
+    private String paymentId;
 
     @Column
-    private String paymentMethodType;
+    private String paymentType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
