@@ -2,7 +2,7 @@ package es.fjrj3d.seat_booker_api.services;
 
 import com.stripe.model.PaymentMethod;
 import com.stripe.param.PaymentMethodAttachParams;
-import es.fjrj3d.seat_booker_api.dtos.PaymentMethodDTO;
+import es.fjrj3d.seat_booker_api.dtos.PaymentDTO;
 import es.fjrj3d.seat_booker_api.models.Payment;
 import es.fjrj3d.seat_booker_api.models.User;
 import es.fjrj3d.seat_booker_api.repositories.IPaymentRepository;
@@ -27,7 +27,7 @@ public class PaymentService {
         return iUserRepository.findByEmail(email).orElse(null);
     }
 
-    public PaymentMethodDTO addPaymentMethod(String customerId, String paymentMethodId, User user) {
+    public PaymentDTO addPaymentMethod(String customerId, String paymentMethodId, User user) {
         try {
             PaymentMethod paymentMethod = PaymentMethod.retrieve(paymentMethodId);
             paymentMethod.attach(PaymentMethodAttachParams.builder()
@@ -41,7 +41,7 @@ public class PaymentService {
             payment.setUser(user);
             iPaymentRepository.save(payment);
 
-            return new PaymentMethodDTO(paymentMethod.getId(), paymentMethod.getType());
+            return new PaymentDTO(paymentMethod.getId(), paymentMethod.getType());
         } catch (Exception e) {
             e.printStackTrace();
             return null;

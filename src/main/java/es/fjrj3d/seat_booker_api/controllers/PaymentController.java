@@ -1,6 +1,6 @@
 package es.fjrj3d.seat_booker_api.controllers;
 
-import es.fjrj3d.seat_booker_api.dtos.PaymentMethodDTO;
+import es.fjrj3d.seat_booker_api.dtos.PaymentDTO;
 import es.fjrj3d.seat_booker_api.models.User;
 import es.fjrj3d.seat_booker_api.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping("/add-payment-method")
-    public ResponseEntity<PaymentMethodDTO> addPaymentMethod(@RequestBody Map<String, String> request) {
+    public ResponseEntity<PaymentDTO> addPaymentMethod(@RequestBody Map<String, String> request) {
         String paymentMethodId = request.get("paymentMethodId");
 
         User user = paymentService.getUserFromAuthentication();
@@ -28,10 +28,10 @@ public class PaymentController {
         }
 
         String customerId = user.getStripeCustomerId();
-        PaymentMethodDTO paymentMethodDTO = paymentService.addPaymentMethod(customerId, paymentMethodId, user);
+        PaymentDTO paymentDTO = paymentService.addPaymentMethod(customerId, paymentMethodId, user);
 
-        if (paymentMethodDTO != null) {
-            return ResponseEntity.ok(paymentMethodDTO);
+        if (paymentDTO != null) {
+            return ResponseEntity.ok(paymentDTO);
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
