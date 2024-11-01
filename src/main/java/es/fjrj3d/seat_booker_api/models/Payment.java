@@ -20,16 +20,13 @@ public class Payment {
     private Long id;
 
     @Column
-    private String cardNumber;
+    private String paymentMethodToken;
 
     @Column
-    private Long expMonth;
+    private String paymentMethodId;
 
     @Column
-    private Long expYear;
-
-    @Column
-    private String cvc;
+    private String paymentMethodType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

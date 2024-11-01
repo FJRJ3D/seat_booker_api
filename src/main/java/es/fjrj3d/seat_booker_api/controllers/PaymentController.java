@@ -1,16 +1,14 @@
 package es.fjrj3d.seat_booker_api.controllers;
 
-import es.fjrj3d.seat_booker_api.models.Payment;
+import es.fjrj3d.seat_booker_api.dtos.PaymentMethodDTO;
 import es.fjrj3d.seat_booker_api.models.User;
-import es.fjrj3d.seat_booker_api.repositories.IUserRepository;
 import es.fjrj3d.seat_booker_api.services.PaymentService;
-import com.stripe.model.PaymentMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -20,24 +18,20 @@ public class PaymentController {
     @Autowired
     private PaymentService paymentService;
 
-    @Autowired
-    private IUserRepository iUserRepository;
-
     @PostMapping("/add-payment-method")
-    public ResponseEntity<PaymentMethod> addPaymentMethod(@RequestBody Payment request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        User user = iUserRepository.findByEmail(email).orElse(null);
+    public ResponseEntity<PaymentMethodDTO> addPaymentMethod(@RequestBody Map<String, String> request) {
+        String paymentMethodId = request.get("paymentMethodId");
 
+        User user = paymentService.getUserFromAuthentication();
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         String customerId = user.getStripeCustomerId();
-        PaymentMethod paymentMethod = paymentService.addPaymentMethod(customerId, request);
+        PaymentMethodDTO paymentMethodDTO = paymentService.addPaymentMethod(customerId, paymentMethodId, user);
 
-        if (paymentMethod != null) {
-            return ResponseEntity.ok(paymentMethod);
+        if (paymentMethodDTO != null) {
+            return ResponseEntity.ok(paymentMethodDTO);
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
