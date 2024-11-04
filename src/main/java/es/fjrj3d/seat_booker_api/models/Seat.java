@@ -23,6 +23,9 @@ public class Seat {
     @Column
     private String seatName;
 
+    @Column
+    private Long price = 750L;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "screening_id")
     @JsonBackReference("screening-seat")

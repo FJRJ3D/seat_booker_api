@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -25,7 +24,7 @@ public class Ticket {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Column
-    private LocalDate localDate;
+    private LocalDate localDate = LocalDate.now();
 
     @Column
     private String rowLetter;
@@ -37,7 +36,7 @@ public class Ticket {
     private String roomName;
 
     @Column
-    private BigDecimal price;
+    private Long price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
