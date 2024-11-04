@@ -35,8 +35,4 @@ public class Seat {
     @JoinColumn(name = "screening_id")
     @JsonBackReference("screening-seat")
     private Screening screening;
-
-//    @OneToOne(mappedBy = "seat", fetch = FetchType.LAZY)
-//    @JsonManagedReference("seat-ticket")
-//    private Ticket ticket;
 }

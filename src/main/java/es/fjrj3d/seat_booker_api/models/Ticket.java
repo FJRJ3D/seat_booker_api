@@ -47,9 +47,4 @@ public class Ticket {
     @JoinColumn(name = "user_id")
     @JsonBackReference("user-ticket")
     private User user;
-
-//    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "seat_id")
-//    @JsonBackReference("seat-ticket")
-//    private Seat seat;
 }
