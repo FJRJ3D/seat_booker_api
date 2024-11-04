@@ -20,6 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class PaymentService {
 
@@ -43,7 +45,7 @@ public class PaymentService {
 
     public Seat checkSeatAvailability(Long seatId) {
         Seat seat = iSeatRepository.findById(seatId).orElse(null);
-        if (seat == null || seat.getTicket() != null) {
+        if (seat == null || seat.getReserved()) {
             return null;
         }
         return seat;
@@ -71,10 +73,15 @@ public class PaymentService {
     }
 
     public TransactionDTO processSeatPayment(User user, Seat seat, String paymentMethodId) throws StripeException {
+        String priceString = seat.getPrice();
+        BigDecimal priceBigDecimal = new BigDecimal(priceString.replaceAll("[^\\d.]", ""));
+        BigDecimal seatPrice = priceBigDecimal.multiply(BigDecimal.valueOf(100));
+        Long seatPriceLong = seatPrice.longValue();
+
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setCustomer(user.getStripeCustomerId())
                 .setPaymentMethod(paymentMethodId)
-                .setAmount(seat.getPrice())
+                .setAmount(seatPriceLong)
                 .setCurrency("eur")
                 .setConfirm(true)
                 .setReturnUrl("https://tu-sitio.com/return-url")
@@ -84,12 +91,15 @@ public class PaymentService {
 
         if ("succeeded".equals(paymentIntent.getStatus())) {
             Ticket ticket = new Ticket();
-            ticket.setSeat(seat);
             ticket.setUser(user);
             ticket.setPrice(seat.getPrice());
+            ticket.setSeatName(seat.getSeatName());
+            ticket.setSchedule(seat.getScreening().getSchedule());
+            ticket.setMovieName(seat.getScreening().getRoom().getMovie().getTitle());
+            ticket.setRoomName(seat.getScreening().getRoom().getRoomName());
             iTicketRepository.save(ticket);
 
-            seat.setTicket(ticket);
+            seat.setReserved(true);
             iSeatRepository.save(seat);
         }
 

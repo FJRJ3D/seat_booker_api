@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table
 @NoArgsConstructor
@@ -24,14 +26,17 @@ public class Seat {
     private String seatName;
 
     @Column
-    private Long price = 750L;
+    private String price = BigDecimal.valueOf(7.5) + " €";
+
+    @Column
+    private Boolean reserved = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "screening_id")
     @JsonBackReference("screening-seat")
     private Screening screening;
 
-    @OneToOne(mappedBy = "seat", fetch = FetchType.LAZY)
-    @JsonManagedReference("seat-ticket")
-    private Ticket ticket;
+//    @OneToOne(mappedBy = "seat", fetch = FetchType.LAZY)
+//    @JsonManagedReference("seat-ticket")
+//    private Ticket ticket;
 }
