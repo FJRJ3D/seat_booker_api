@@ -103,6 +103,6 @@ public class PaymentService {
             iSeatRepository.save(seat);
         }
 
-        return new TransactionDTO(paymentIntent.getId(), paymentIntent.getStatus(), paymentIntent.getAmount());
+        return new TransactionDTO(paymentIntent.getId(), paymentIntent.getStatus(), seat.getPrice());
     }
 }
