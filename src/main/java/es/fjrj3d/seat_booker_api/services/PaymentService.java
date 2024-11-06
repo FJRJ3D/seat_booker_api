@@ -7,20 +7,16 @@ import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.PaymentMethodAttachParams;
 import es.fjrj3d.seat_booker_api.dtos.PaymentDTO;
 import es.fjrj3d.seat_booker_api.dtos.TransactionDTO;
-import es.fjrj3d.seat_booker_api.models.Payment;
-import es.fjrj3d.seat_booker_api.models.Seat;
-import es.fjrj3d.seat_booker_api.models.Ticket;
-import es.fjrj3d.seat_booker_api.models.User;
-import es.fjrj3d.seat_booker_api.repositories.IPaymentRepository;
-import es.fjrj3d.seat_booker_api.repositories.ISeatRepository;
-import es.fjrj3d.seat_booker_api.repositories.ITicketRepository;
-import es.fjrj3d.seat_booker_api.repositories.IUserRepository;
+import es.fjrj3d.seat_booker_api.models.*;
+import es.fjrj3d.seat_booker_api.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PaymentService {
@@ -37,6 +33,9 @@ public class PaymentService {
     @Autowired
     private ITicketRepository iTicketRepository;
 
+    @Autowired
+    private IScreeningRepository iScreeningRepository;
+
     public User getUserFromAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
@@ -49,6 +48,11 @@ public class PaymentService {
             return null;
         }
         return seat;
+    }
+
+    public boolean areAllSeatsReserved(Long screeningId) {
+        List<Seat> seats = iSeatRepository.findByScreeningId(screeningId);
+        return seats.stream().allMatch(Seat::getReserved);
     }
 
     public PaymentDTO addPaymentMethod(String customerId, String paymentMethodId, User user) {
@@ -73,36 +77,53 @@ public class PaymentService {
     }
 
     public TransactionDTO processSeatPayment(User user, Seat seat, String paymentMethodId) throws StripeException {
-        String priceString = seat.getPrice();
-        BigDecimal priceBigDecimal = new BigDecimal(priceString.replaceAll("[^\\d.]", ""));
-        BigDecimal seatPrice = priceBigDecimal.multiply(BigDecimal.valueOf(100));
-        Long seatPriceLong = seatPrice.longValue();
 
-        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-                .setCustomer(user.getStripeCustomerId())
-                .setPaymentMethod(paymentMethodId)
-                .setAmount(seatPriceLong)
-                .setCurrency("eur")
-                .setConfirm(true)
-                .setReturnUrl("https://tu-sitio.com/return-url")
-                .build();
+        if (!seat.getScreening().isAvailability()){
+            return null;
+        } else {
+            String priceString = seat.getPrice();
+            BigDecimal priceBigDecimal = new BigDecimal(priceString.replaceAll("[^\\d.]", ""));
+            BigDecimal seatPrice = priceBigDecimal.multiply(BigDecimal.valueOf(100));
+            Long seatPriceLong = seatPrice.longValue();
 
-        PaymentIntent paymentIntent = PaymentIntent.create(params);
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                    .setCustomer(user.getStripeCustomerId())
+                    .setPaymentMethod(paymentMethodId)
+                    .setAmount(seatPriceLong)
+                    .setCurrency("eur")
+                    .setConfirm(true)
+                    .setReturnUrl("https://tu-sitio.com/return-url")
+                    .build();
 
-        if ("succeeded".equals(paymentIntent.getStatus())) {
-            Ticket ticket = new Ticket();
-            ticket.setUser(user);
-            ticket.setPrice(seat.getPrice());
-            ticket.setSeatName(seat.getSeatName());
-            ticket.setSchedule(seat.getScreening().getSchedule());
-            ticket.setMovieName(seat.getScreening().getRoom().getMovie().getTitle());
-            ticket.setRoomName(seat.getScreening().getRoom().getRoomName());
-            iTicketRepository.save(ticket);
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
 
-            seat.setReserved(true);
-            iSeatRepository.save(seat);
+            if ("succeeded".equals(paymentIntent.getStatus())) {
+                Ticket ticket = new Ticket();
+                ticket.setUser(user);
+                ticket.setPrice(seat.getPrice());
+                ticket.setSeatName(seat.getSeatName());
+                ticket.setSchedule(seat.getScreening().getSchedule());
+                ticket.setMovieName(seat.getScreening().getRoom().getMovie().getTitle());
+                ticket.setRoomName(seat.getScreening().getRoom().getRoomName());
+                iTicketRepository.save(ticket);
+
+                seat.setReserved(true);
+                iSeatRepository.save(seat);
+
+                if (areAllSeatsReserved(seat.getScreening().getId())){
+                    Optional<Screening> screeningOptional = iScreeningRepository.findById(seat.getScreening().getId());
+                    Screening screening = screeningOptional.get();
+                    screening.setAvailability(false);
+                    iScreeningRepository.save(screening);
+                } else {
+                    Optional<Screening> screeningOptional = iScreeningRepository.findById(seat.getScreening().getId());
+                    Screening screening = screeningOptional.get();
+                    screening.setAvailability(true);
+                    iScreeningRepository.save(screening);
+                }
+            }
+
+            return new TransactionDTO(paymentIntent.getId(), paymentIntent.getStatus(), seat.getPrice());
         }
-
-        return new TransactionDTO(paymentIntent.getId(), paymentIntent.getStatus(), seat.getPrice());
     }
 }

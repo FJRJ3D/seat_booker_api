@@ -29,6 +29,9 @@ public class ScreeningService {
     @Autowired
     IRoomRepository iRoomRepository;
 
+    @Autowired
+    PaymentService paymentService;
+
     public Screening createScreening(Screening screening, String roomName) {
         Room room = iRoomRepository.findByRoomName(roomName)
                 .orElseThrow(() -> new ScreeningNotFoundException("Room not found with name: " +roomName));
@@ -89,17 +92,29 @@ public class ScreeningService {
 
             if (timeUntilScreening.isNegative() || timeUntilScreening.isZero()) {
                 if (!remaining.isNegative() && !remaining.isZero()) {
-                    message = "Remaining duration: " + DurationUtils.formatDuration(remaining);
-                    webSocketService.sendDurationUpdate(screening.getId(), message);
-                    updateAvailability(screening.getId(), true);
+                    if (paymentService.areAllSeatsReserved(screening.getId())){
+                        message = "Remaining duration: " + DurationUtils.formatDuration(remaining);
+                        webSocketService.sendDurationUpdate(screening.getId(), message);
+                        updateAvailability(screening.getId(), false);
+                    } else {
+                        message = "Remaining duration: " + DurationUtils.formatDuration(remaining);
+                        webSocketService.sendDurationUpdate(screening.getId(), message);
+                        updateAvailability(screening.getId(), true);
+                    }
                 } else {
                     webSocketService.sendScreeningEnded(screening.getId());
                     updateAvailability(screening.getId(), false);
                 }
             } else {
-                message = "Time until screening: " + DurationUtils.formatDuration(timeUntilScreening);
-                webSocketService.sendDurationUpdate(screening.getId(), message);
-                updateAvailability(screening.getId(), true);
+                if (paymentService.areAllSeatsReserved(screening.getId())){
+                    message = "Time until screening: " + DurationUtils.formatDuration(timeUntilScreening);
+                    webSocketService.sendDurationUpdate(screening.getId(), message);
+                    updateAvailability(screening.getId(), false);
+                } else {
+                    message = "Time until screening: " + DurationUtils.formatDuration(timeUntilScreening);
+                    webSocketService.sendDurationUpdate(screening.getId(), message);
+                    updateAvailability(screening.getId(), true);
+                }
             }
         }
     }
