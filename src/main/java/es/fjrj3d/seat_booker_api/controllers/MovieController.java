@@ -6,6 +6,7 @@ import es.fjrj3d.seat_booker_api.services.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -55,5 +56,14 @@ public class MovieController {
     @ExceptionHandler(MovieNotFoundException.class)
     public ResponseEntity<String> handleMovieNotFoundException(MovieNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        StringBuilder errorMessages = new StringBuilder();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            errorMessages.append(error.getDefaultMessage()).append("\n");
+        });
+        return ResponseEntity.badRequest().body(errorMessages.toString());
     }
 }
