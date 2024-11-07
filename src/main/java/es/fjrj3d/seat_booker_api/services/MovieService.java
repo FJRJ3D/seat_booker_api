@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,8 +26,9 @@ public class MovieService {
         return iMovieRepository.findAll();
     }
 
-    public Optional<Movie> getMovieById(Long id) {
-        return iMovieRepository.findById(id);
+    public Movie getMovieById(Long id) {
+        return iMovieRepository.findById(id)
+                .orElseThrow(() -> new MovieNotFoundException("Movie not found with ID: " + id));
     }
 
     public Movie updateMovie(Movie movie, Long id) {
@@ -45,29 +47,16 @@ public class MovieService {
 
         Movie existingMovie = existingMovieOpt.get();
 
-        if (movie.getTitle() != null) {
-            existingMovie.setTitle(movie.getTitle());
-        }
-        if (movie.getSynopsis() != null) {
-            existingMovie.setSynopsis(movie.getSynopsis());
-        }
-        if (movie.getGenre() != null) {
-            existingMovie.setGenre(movie.getGenre());
-        }
-        if (movie.getAgeRating() != null) {
-            existingMovie.setAgeRating(movie.getAgeRating());
-        }
-        if (movie.getUserRating() != null) {
-            existingMovie.setUserRating(movie.getUserRating());
-        }
-        if (movie.getCoverImageUrl() != null) {
-            existingMovie.setCoverImageUrl(movie.getCoverImageUrl());
-        }
-        if (movie.getDuration() != null) {
-            existingMovie.setDuration(movie.getDuration());
-        }
-        if (movie.getPremiere() != null) {
-            existingMovie.setPremiere(movie.getPremiere());
+        for (Field field : Movie.class.getDeclaredFields()) {
+            try {
+                field.setAccessible(true);
+                Object value = field.get(movie);
+                if (value != null) {
+                    field.set(existingMovie, value);
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
 
         return iMovieRepository.save(existingMovie);
