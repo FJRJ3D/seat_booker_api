@@ -38,22 +38,17 @@ public class MovieController {
         return new ResponseEntity<>(movie, HttpStatus.OK);
     }
 
-    @PutMapping(path = "/{id}")
-    public ResponseEntity<Movie> updateMovie(@Valid @RequestBody Movie movie, @PathVariable Long id) {
+    @PatchMapping(path = "/{id}")
+    public ResponseEntity<Movie> updateMovie(@RequestBody Movie movie, @PathVariable Long id) {
         Movie updatedMovie = movieService.updateMovie(movie, id);
         return ResponseEntity.ok(updatedMovie);
     }
 
-    @PatchMapping(path = "/{id}")
-    public ResponseEntity<Movie> updateMoviePartial(@RequestBody Movie movie, @PathVariable Long id) {
-        Movie updatedMovie = movieService.updateMoviePartial(movie, id);
-        return ResponseEntity.ok(updatedMovie);
-    }
-
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
-        if (movieService.deleteMovie(id)) {
-            return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteMovie(@PathVariable Long id) {
+        if (movieService.deleteMovie(id).equals("Movie was successfully deleted")) {
+            String resultMessage = movieService.deleteMovie(id);
+            return ResponseEntity.ok(resultMessage);
         }
         return ResponseEntity.notFound().build();
     }
@@ -61,8 +56,9 @@ public class MovieController {
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteMovies(@RequestBody List<Long> movieIds) {
         try {
+            String resultMessage = movieService.deleteMoviesByIds(movieIds);
             movieService.deleteMoviesByIds(movieIds);
-            return ResponseEntity.ok("Movies deleted successfully");
+            return ResponseEntity.ok(resultMessage);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
