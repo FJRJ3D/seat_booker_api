@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -130,66 +129,120 @@ class MovieControllerTest {
                 .andExpect(jsonPath("$[1].premiere").value("19-12-1997"));
     }
 
-//    @Test
-//    void should_return_movie_by_id() throws Exception {
-//        when(movieService.getMovieById(1L)).thenReturn(Optional.of(interstellar));
-//
-//        mockMvc.perform(get("/api/movie/1"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.title").value("Interstellar"));
-//    }
+    @Test
+    void should_return_movie_by_id() throws Exception {
+        when(movieService.getMovieById(1L)).thenReturn(interstellar);
 
-//    @Test
-//    void should_return_not_found_for_nonexistent_movie() throws Exception {
-//        when(movieService.getMovieById(3L)).thenReturn(Optional.empty());
-//
-//        mockMvc.perform(get("/api/movie/3"))
-//                .andExpect(status().isNotFound());
-//    }
-//
-//    @Test
-//    void should_update_movie() throws Exception {
-//        when(movieService.updateMovie(any(Movie.class), eq(2L))).thenReturn(titanic);
-//
-//        mockMvc.perform(put("/api/movie/2")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content("{\"title\":\"Titanic\",\"synopsis\":\"Titanic is a romantic drama directed by " +
-//                                "James Cameron, telling the story of Jack and Rose.\",\"genre\":\"DRAMA\",\"" +
-//                                "ageRating\":\"EIGHTEEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":" +
-//                                "\"https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg\",\"duration\":" +
-//                                "\"PT3H15M\",\"premiere\":\"19-12-1997\"}"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.title").value("Titanic"));
-//    }
-//
-//    @Test
-//    void should_return_not_found_for_update_when_movie_does_not_exist() throws Exception {
-//        when(movieService.updateMovie(any(Movie.class), eq(3L))).thenThrow(new MovieNotFoundException("Movie " +
-//                "not found"));
-//
-//        mockMvc.perform(put("/api/movie/3")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content("{\"title\":\"Titanic\",\"synopsis\":\"Titanic is a romantic drama directed by James" +
-//                                " Cameron, telling the story of Jack and Rose.\",\"genre\":\"DRAMA\",\"ageRating\":" +
-//                                "\"EIGHTEEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":\"https://upload" +
-//                                ".wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg\",\"duration\":\"PT3H15M\",\"" +
-//                                "premiere\":\"19-12-1997\"}"))
-//                .andExpect(status().isNotFound());
-//    }
-//
-//    @Test
-//    void should_delete_movie() throws Exception {
-//        when(movieService.deleteMovie(2L)).thenReturn(true);
-//
-//        mockMvc.perform(delete("/api/movie/2"))
-//                .andExpect(status().isNoContent());
-//    }
-//
-//    @Test
-//    void should_return_not_found_for_delete_when_movie_does_not_exist() throws Exception {
-//        when(movieService.deleteMovie(3L)).thenReturn(false);
-//
-//        mockMvc.perform(delete("/api/movie/3"))
-//                .andExpect(status().isNotFound());
-//    }
+        mockMvc.perform(get("/api/movie/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.title").value("Interstellar"))
+                .andExpect(jsonPath("$.synopsis").value("Interstellar is a science fiction " +
+                        "film directed by Christopher Nolan that explores themes of love."))
+                .andExpect(jsonPath("$.genre").value("SCIENCE_FICTION"))
+                .andExpect(jsonPath("$.ageRating").value("SEVEN_PLUS"))
+                .andExpect(jsonPath("$.userRating").value("FIVE_STARS"))
+                .andExpect(jsonPath("$.coverImageUrl").value("https://pbs.twimg.com/profile_" +
+                        "images/558490159834857472/gpoC7V0X_400x400.jpeg"))
+                .andExpect(jsonPath("$.duration").value("02:49"))
+                .andExpect(jsonPath("$.premiere").value("07-11-2014"));
+    }
+
+    @Test
+    void should_return_not_found_for_nonexistent_movie() throws Exception {
+        when(movieService.getMovieById(3L)).thenThrow(new MovieNotFoundException("Movie not found"));
+
+        mockMvc.perform(get("/api/movie/3"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void should_update_movie() throws Exception {
+        when(movieService.updateMovie(any(Movie.class), eq(2L))).thenReturn(titanic);
+
+        mockMvc.perform(patch("/api/movie/2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Titanic\",\"synopsis\":\"Titanic is a romantic drama directed by James" +
+                                " Cameron, telling the story of Jack and Rose.\",\"genre\":\"DRAMA\",\"ageRating\"" +
+                                ":\"EIGHTEEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":\"https://upload" +
+                                ".wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg\",\"duration\":\"03:15\",\"" +
+                                "premiere\":\"19-12-1997\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Titanic"))
+                .andExpect(jsonPath("$.synopsis").value("Titanic is a romantic drama directed" +
+                        " by James Cameron, telling the story of Jack and Rose."))
+                .andExpect(jsonPath("$.genre").value("DRAMA"))
+                .andExpect(jsonPath("$.ageRating").value("EIGHTEEN_PLUS"))
+                .andExpect(jsonPath("$.userRating").value("FIVE_STARS"))
+                .andExpect(jsonPath("$.coverImageUrl").value("https://upload.wikimedia.org/" +
+                        "wikipedia/en/2/22/Titanic_poster.jpg"))
+                .andExpect(jsonPath("$.duration").value("03:15"))
+                .andExpect(jsonPath("$.premiere").value("19-12-1997"));
+    }
+
+    @Test
+    void should_return_not_found_for_update_when_movie_does_not_exist() throws Exception {
+        when(movieService.updateMovie(any(Movie.class), eq(3L))).thenThrow(new MovieNotFoundException("Movie" +
+                " not found"));
+
+        mockMvc.perform(patch("/api/movie/3")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Titanic\",\"synopsis\":\"Titanic is a romantic drama directed by " +
+                                "James Cameron, telling the story of Jack and Rose.\",\"genre\":\"DRAMA\",\"" +
+                                "ageRating\":\"EIGHTEEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":\"" +
+                                "https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg\",\"duration\":" +
+                                "\"03:15\",\"premiere\":\"19-12-1997\"}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void should_delete_movie() throws Exception {
+        when(movieService.deleteMovie(2L)).thenReturn("Movie was successfully deleted");
+        mockMvc.perform(delete("/api/movie/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Movie was successfully deleted"));
+    }
+
+    @Test
+    void should_return_not_found_for_delete_when_movie_does_not_exist() throws Exception {
+        doThrow(new MovieNotFoundException("Movie not found with ID: 3"))
+                .when(movieService).deleteMovie(3L);
+        mockMvc.perform(delete("/api/movie/3"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void should_delete_movies() throws Exception {
+        when(movieService.deleteMoviesByIds(anyList())).thenReturn("Movies were successfully deleted");
+
+        mockMvc.perform(delete("/api/movie/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[1, 2]"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value("Movies were successfully deleted"));
+    }
+
+    @Test
+    void should_return_bad_request_when_movie_ids_are_empty() throws Exception {
+        when(movieService.deleteMoviesByIds(anyList())).thenThrow(new IllegalArgumentException("Movie IDs cannot be " +
+                "null or empty"));
+
+        mockMvc.perform(delete("/api/movie/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[]"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").value("Movie IDs cannot be null or empty"));
+    }
+
+    @Test
+    void should_return_bad_request_when_some_movies_not_found() throws Exception {
+        when(movieService.deleteMoviesByIds(anyList())).thenThrow(new IllegalArgumentException("Some movies not " +
+                "found"));
+
+        mockMvc.perform(delete("/api/movie/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[1, 2]"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").value("Some movies not found"));
+    }
 }
