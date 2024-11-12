@@ -183,4 +183,24 @@ class MovieControllerTest {
                 .andExpect(MockMvcResultMatchers
                         .content().string("Movie not found with ID: 3"));
     }
+
+    @Test
+    void  when_delete_movie_by_id_then_returns_status_200_if_deletion_is_successful() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie/" + interstellar.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers
+                        .content().string("Movie was successfully deleted"));
+    }
+
+    @Test
+    void when_delete_movie_by_id_then_returns_status_404_if_movie_not_found() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie/3")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isNotFound())
+                .andExpect(MockMvcResultMatchers
+                        .content().string("Movie not found with ID: 3"));
+    }
 }
