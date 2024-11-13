@@ -57,7 +57,6 @@ public class MovieController {
     public ResponseEntity<String> deleteMovies(@RequestBody List<Long> movieIds) {
         try {
             String resultMessage = movieService.deleteMoviesByIds(movieIds);
-            movieService.deleteMoviesByIds(movieIds);
             return ResponseEntity.ok(resultMessage);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

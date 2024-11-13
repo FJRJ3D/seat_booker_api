@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -37,6 +38,9 @@ class MovieControllerTest {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     private String token;
     private Movie interstellar;
     private Movie titanic;
@@ -46,6 +50,9 @@ class MovieControllerTest {
 
     @BeforeEach
     void setUp() {
+        jdbcTemplate.execute("ALTER TABLE movie AUTO_INCREMENT = 1;");
+        jdbcTemplate.execute("ALTER TABLE user AUTO_INCREMENT = 1;");
+
         registerRequest = new RegisterRequest("user@gmail.com", "user", "user");
         token = authService.register(registerRequest).accessToken();
 
@@ -82,13 +89,13 @@ class MovieControllerTest {
     @Test
     void when_create_movie_then_returns_status_201() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/movie")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content("{\"title\":\"Interstellar\",\"synopsis\":\"Interstellar is a science fiction film directed" +
-                                " by Christopher Nolan that explores themes of love.\",\"genre\":\"SCIENCE_FICTION\"," +
-                                "\"ageRating\":\"SEVEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":\"https://pbs" +
-                                ".twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg\",\"duration\":\"02:49\"," +
-                                "\"premiere\":\"07-11-2014\"}\n"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .content("{\"title\":\"Interstellar\",\"synopsis\":\"Interstellar is a science fiction film directed" +
+                        " by Christopher Nolan that explores themes of love.\",\"genre\":\"SCIENCE_FICTION\"," +
+                        "\"ageRating\":\"SEVEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":\"https://pbs" +
+                        ".twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg\",\"duration\":\"02:49\"," +
+                        "\"premiere\":\"07-11-2014\"}\n"))
                 .andExpect(status().isCreated())
                 .andExpect(MockMvcResultMatchers
                         .content().json("{\"title\":\"Interstellar\",\"synopsis\":\"Interstellar is a " +
@@ -150,6 +157,7 @@ class MovieControllerTest {
 
     @Test
     void  when_get_movie_by_id_then_returns_status_404_if_movie_not_found() throws Exception {
+        iMovieRepository.deleteById(3L);
         mockMvc.perform(MockMvcRequestBuilders.get("/api/movie/3")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
@@ -175,6 +183,7 @@ class MovieControllerTest {
 
     @Test
     void  when_patch_movie_by_id_then_returns_status_404_if_movie_not_found() throws Exception {
+        iMovieRepository.deleteById(3L);
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/movie/3")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
@@ -196,11 +205,46 @@ class MovieControllerTest {
 
     @Test
     void when_delete_movie_by_id_then_returns_status_404_if_movie_not_found() throws Exception {
+        iMovieRepository.deleteById(3L);
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie/3")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isNotFound())
                 .andExpect(MockMvcResultMatchers
                         .content().string("Movie not found with ID: 3"));
+    }
+
+    @Test
+    void when_delete_movies_by_ids_then_returns_status_200_if_deletion_successful() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie/delete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .content(String.format("[%d, %d]", interstellar.getId(), titanic.getId())))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers
+                    .content().string("Movies were successfully deleted"));
+    }
+
+    @Test
+    void when_delete_movies_by_ids_then_returns_status_404_if_movies_not_found() throws Exception {
+        iMovieRepository.deleteById(titanic.getId());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .content(String.format("[%d, %d]", interstellar.getId(), titanic.getId())))
+                        .andExpect(status().isNotFound())
+                        .andExpect(MockMvcResultMatchers
+                            .content().string("Some movies not found"));
+    }
+
+    @Test
+    void when_delete_movies_by_ids_then_returns_status_400_if_deletion_fails() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie/delete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .content("[]"))
+                .andExpect(status().isBadRequest())
+                .andExpect(MockMvcResultMatchers
+                        .content().string("Movie IDs cannot be null or empty"));
     }
 }
