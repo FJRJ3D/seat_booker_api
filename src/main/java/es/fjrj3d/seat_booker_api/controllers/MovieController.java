@@ -1,10 +1,8 @@
 package es.fjrj3d.seat_booker_api.controllers;
 
-import es.fjrj3d.seat_booker_api.exceptions.MovieNotFoundException;
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.services.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +32,7 @@ public class MovieController {
     @GetMapping("/{id}")
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
         Movie movie = movieService.getMovieById(id);
-        return new ResponseEntity<>(movie, HttpStatus.OK);
+        return ResponseEntity.ok(movie);
     }
 
     @PatchMapping(path = "/{id}")
@@ -45,15 +43,11 @@ public class MovieController {
 
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<String> deleteMovie(@PathVariable Long id) {
-        try {
-            String resultMessage = movieService.deleteMovie(id);
-            return ResponseEntity.ok(resultMessage);
-        } catch (MovieNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+        String resultMessage = movieService.deleteMovie(id);
+        return ResponseEntity.ok(resultMessage);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping
     public ResponseEntity<String> deleteMovies(@RequestBody List<Long> movieIds) {
         try {
             String resultMessage = movieService.deleteMoviesByIds(movieIds);

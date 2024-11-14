@@ -4,7 +4,6 @@ import es.fjrj3d.seat_booker_api.exceptions.MovieNotFoundException;
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ public class MovieService {
     @Autowired
     IMovieRepository iMovieRepository;
 
-    public Movie createMovie(@Valid Movie movie) {
+    public Movie createMovie(Movie movie) {
         return iMovieRepository.save(movie);
     }
 

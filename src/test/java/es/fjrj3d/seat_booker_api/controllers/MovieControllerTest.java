@@ -216,7 +216,7 @@ class MovieControllerTest {
 
     @Test
     void when_delete_movies_by_ids_then_returns_status_200_if_deletion_successful() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie/delete")
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .content(String.format("[%d, %d]", interstellar.getId(), titanic.getId())))
@@ -228,7 +228,7 @@ class MovieControllerTest {
     @Test
     void when_delete_movies_by_ids_then_returns_status_404_if_movies_not_found() throws Exception {
         iMovieRepository.deleteById(titanic.getId());
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie/delete")
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                         .content(String.format("[%d, %d]", interstellar.getId(), titanic.getId())))
@@ -239,7 +239,7 @@ class MovieControllerTest {
 
     @Test
     void when_delete_movies_by_ids_then_returns_status_400_if_deletion_fails() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie/delete")
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/movie")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                         .content("[]"))
