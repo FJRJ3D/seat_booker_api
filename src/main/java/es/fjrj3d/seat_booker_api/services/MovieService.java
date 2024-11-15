@@ -4,12 +4,9 @@ import es.fjrj3d.seat_booker_api.exceptions.MovieNotFoundException;
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,19 +36,36 @@ public class MovieService {
         }
 
         Movie existingMovie = existingMovieOpt.get();
-        Logger logger = LoggerFactory.getLogger(MovieService.class);
 
-        for (Field field : Movie.class.getDeclaredFields()) {
-            try {
-                field.setAccessible(true);
-                Object value = field.get(movie);
-                if (value != null) {
-                    field.set(existingMovie, value);
-                }
-            } catch (IllegalAccessException e) {
-                logger.error("Error accessing field: {} when updating movie", field.getName(), e);
-                throw new RuntimeException("Failed to update field " + field.getName(), e);
-            }
+        if (movie.getTitle() != null) {
+            existingMovie.setTitle(movie.getTitle());
+        }
+        if (movie.getSynopsis() != null) {
+            existingMovie.setSynopsis(movie.getSynopsis());
+        }
+        if (movie.getGenre() != null) {
+            existingMovie.setGenre(movie.getGenre());
+        }
+        if (movie.getAgeRating() != null) {
+            existingMovie.setAgeRating(movie.getAgeRating());
+        }
+        if (movie.getUserRating() != null) {
+            existingMovie.setUserRating(movie.getUserRating());
+        }
+        if (movie.getCoverImageUrl() != null) {
+            existingMovie.setCoverImageUrl(movie.getCoverImageUrl());
+        }
+        if (movie.getDuration() != null) {
+            existingMovie.setDuration(movie.getDuration());
+        }
+        if (movie.getPremiere() != null) {
+            existingMovie.setPremiere(movie.getPremiere());
+        }
+        if (movie.getRooms() != null) {
+            existingMovie.setRooms(movie.getRooms());
+        }
+        if (movie.getReviews() != null) {
+            existingMovie.setReviews(movie.getReviews());
         }
 
         return iMovieRepository.save(existingMovie);
