@@ -2,6 +2,7 @@ package es.fjrj3d.seat_booker_api.controllers;
 
 import es.fjrj3d.seat_booker_api.models.Room;
 import es.fjrj3d.seat_booker_api.services.RoomService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class RoomController {
     RoomService roomService;
 
     @PostMapping(path = "/{movieTitle}")
-    public ResponseEntity<Room> createRoom(@RequestBody Room room, @PathVariable String movieTitle) {
+    public ResponseEntity<Room> createRoom(@Valid @RequestBody Room room, @PathVariable String movieTitle) {
         Room createdRoom = roomService.createRoom(room, movieTitle);
         return new ResponseEntity<>(createdRoom, HttpStatus.CREATED);
     }
@@ -41,15 +42,25 @@ public class RoomController {
         return new ResponseEntity<>(rooms, HttpStatus.OK);
     }
 
-    @PutMapping(path = "/{id}")
+    @PatchMapping(path = "/{id}")
     public ResponseEntity<Room> updateRoom(@RequestBody Room room, @PathVariable Long id) {
         Room updatedRoom = roomService.updateRoom(room, id);
         return new ResponseEntity<>(updatedRoom, HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Void> deleteRoom(@PathVariable Long id) {
-        roomService.deleteRoom(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<String> deleteRoom(@PathVariable Long id) {
+        String resultMessage = roomService.deleteRoom(id);
+        return ResponseEntity.ok(resultMessage);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteRooms(@RequestBody List<Long> roomIds) {
+        try {
+            String resultMessage = roomService.deleteRoomsByIds(roomIds);
+            return ResponseEntity.ok(resultMessage);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

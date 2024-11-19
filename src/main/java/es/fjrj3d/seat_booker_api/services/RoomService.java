@@ -6,10 +6,12 @@ import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
 import es.fjrj3d.seat_booker_api.repositories.IRoomRepository;
 import es.fjrj3d.seat_booker_api.exceptions.MovieNotFoundException;
 import es.fjrj3d.seat_booker_api.exceptions.RoomNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RoomService {
@@ -24,8 +26,12 @@ public class RoomService {
         Movie movie = iMovieRepository.findByTitle(movieTitle)
                 .orElseThrow(() -> new MovieNotFoundException("Movie not found with title: " + movieTitle));
 
-        long totalRooms = iRoomRepository.count();
-        String generatedRoomName = "Sala " + (totalRooms + 1);
+        int roomNumber = 1;
+        while (iRoomRepository.existsByRoomName("Room " + roomNumber)) {
+            roomNumber++;
+        }
+
+        String generatedRoomName = "Room " + roomNumber;
         room.setRoomName(generatedRoomName);
 
         room.setMovie(movie);
@@ -49,22 +55,62 @@ public class RoomService {
     }
 
     public Room updateRoom(Room room, Long id) {
-        if (!iRoomRepository.existsById(id)) {
-            throw new RoomNotFoundException("Room not found with id: " + id);
+        Optional<Room> existingRoomOpt = iRoomRepository.findById(id);
+        if (existingRoomOpt.isEmpty()) {
+            throw new RoomNotFoundException("Room not found with ID: " + id);
         }
-        room.setId(id);
-        return iRoomRepository.save(room);
+
+        Room existingRoom = existingRoomOpt.get();
+
+        if (room.getRoomName() != null) {
+            existingRoom.setRoomName(room.getRoomName());
+        }
+        if (room.getRoomType() != null) {
+            existingRoom.setRoomType(room.getRoomType());
+        }
+        if (room.getRowQuantity() != null) {
+            existingRoom.setRowQuantity(room.getRowQuantity());
+        }
+        if (room.getSeatQuantity() != null) {
+            existingRoom.setSeatQuantity(room.getSeatQuantity());
+        }
+        if (room.getMovie() != null) {
+            existingRoom.setMovie(room.getMovie());
+        }
+        if (room.getScreenings() != null) {
+            existingRoom.setScreenings(room.getScreenings());
+        }
+
+        return iRoomRepository.save(existingRoom);
     }
 
-    public void deleteRoom(Long id) {
+    public String deleteRoom(Long id) {
         if (!iRoomRepository.existsById(id)) {
             throw new RoomNotFoundException("Room not found with id: " + id);
+        }else {
+            iRoomRepository.deleteById(id);
+            return "Room was successfully deleted";
         }
-        iRoomRepository.deleteById(id);
     }
 
     public Room getRoomByName(String roomName) {
         return iRoomRepository.findByRoomName(roomName)
                 .orElseThrow(() -> new RoomNotFoundException("Room not found with name: " + roomName));
+    }
+
+    @Transactional
+    public String deleteRoomsByIds(List<Long> roomIds) {
+        if (roomIds == null || roomIds.isEmpty()) {
+            throw new IllegalArgumentException("Room IDs cannot be null or empty");
+        }
+
+        List<Room> rooms = iRoomRepository.findAllById(roomIds);
+
+        if (rooms.size() != roomIds.size()) {
+            throw new RoomNotFoundException("Some rooms not found");
+        }
+
+        iRoomRepository.deleteAll(rooms);
+        return "Rooms were successfully deleted";
     }
 }
