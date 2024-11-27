@@ -1,6 +1,5 @@
 package es.fjrj3d.seat_booker_api.services;
 
-import es.fjrj3d.seat_booker_api.exceptions.MovieNotFoundException;
 import es.fjrj3d.seat_booker_api.exceptions.RoomNotFoundException;
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.models.Room;
@@ -47,12 +46,10 @@ class RoomServiceTest {
 
         room1 = new Room();
         room1.setId(1L);
-        room1.setRoomName("Room 1");
         room1.setMovie(interstellar);
 
         room2 = new Room();
         room2.setId(2L);
-        room2.setRoomName("Room 2");
         room2.setMovie(interstellar);
 
         roomList.add(room1);
@@ -66,7 +63,7 @@ class RoomServiceTest {
         when(iRoomRepository.existsByRoomName("Room 2")).thenReturn(false);
         when(iRoomRepository.save(any(Room.class))).thenReturn(room2);
 
-        Room result = roomService.createRoom(new Room(), "Interstellar");
+        Room result = roomService.createRoom(room2, "Interstellar");
 
         assertNotNull(result);
         assertEquals("Room 2", result.getRoomName());
@@ -86,8 +83,11 @@ class RoomServiceTest {
 
     @Test
     void should_return_room_by_id() {
+        when(iMovieRepository.findByTitle("Interstellar")).thenReturn(Optional.of(interstellar));
         when(iRoomRepository.findById(1L)).thenReturn(Optional.of(room1));
+        when(iRoomRepository.save(any(Room.class))).thenReturn(room1);
 
+        roomService.createRoom(room1, "Interstellar");
         Room result = roomService.getRoomById(1L);
 
         assertNotNull(result);
