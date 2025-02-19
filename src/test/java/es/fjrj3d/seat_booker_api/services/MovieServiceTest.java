@@ -6,6 +6,7 @@ import es.fjrj3d.seat_booker_api.models.EMovieGenre;
 import es.fjrj3d.seat_booker_api.models.EMovieUserRating;
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -34,6 +35,7 @@ class MovieServiceTest {
     private Movie titanic;
 
     private final List<Movie> movieList = new ArrayList<>();
+    private final List<String> movieTitles = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {
@@ -64,6 +66,9 @@ class MovieServiceTest {
 
         movieList.add(interstellar);
         movieList.add(titanic);
+
+        movieTitles.add(interstellar.getTitle());
+        movieTitles.add(titanic.getTitle());
     }
 
     @Test
@@ -126,6 +131,19 @@ class MovieServiceTest {
     }
 
     @Test
+    void should_return_all_title_movies() {
+        when(iMovieRepository.getAllMoviesTitles()).thenReturn(movieTitles);
+
+        List<String> result = movieService.getAllMoviesTitles();
+
+        assertEquals(2, result.size());
+        assertEquals("Interstellar", result.get(0));
+        assertEquals("Titanic", result.get(1));
+
+        verify(iMovieRepository, times(1)).getAllMoviesTitles();
+    }
+
+    @Test
     void should_return_movie_by_id() {
         when(iMovieRepository.findById(1L)).thenReturn(Optional.of(interstellar));
 
@@ -145,6 +163,15 @@ class MovieServiceTest {
         assertEquals(LocalDate.of(2014, 11, 7), result.getPremiere());
 
         verify(iMovieRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void should_throw_exception_when_movie_not_found_by_id() {
+        when(iMovieRepository.findById(3L)).thenReturn(Optional.empty());
+
+        assertThrows(MovieNotFoundException.class, () -> movieService.getMovieById(3L));
+
+        verify(iMovieRepository, times(1)).findById(3L);
     }
 
     @Test

@@ -141,13 +141,35 @@ class MovieControllerTest {
     }
 
     @Test
-    void when_get_all_moviesTitles_then_returns_status_200_if_movies_exist() throws Exception {
+    void when_get_all_movies_should_return_status_200_and_empty_list_when_no_movies_exist() throws Exception {
+        iMovieRepository.deleteAll();
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/movie")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers
+                        .content().json("[]"));
+    }
+
+    @Test
+    void when_get_all_movies_titles_then_returns_status_200_if_movies_exist() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/movie/titles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
                         .content().json("[Interstellar, Titanic]"));
+    }
+
+    @Test
+    void when_get_all_movies_titles_should_return_status_200_and_empty_list_when_no_movies_exist() throws Exception {
+        iMovieRepository.deleteAll();
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/movie/titles")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers
+                        .content().json("[]"));
     }
 
     @Test
