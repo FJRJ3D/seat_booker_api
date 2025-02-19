@@ -6,7 +6,6 @@ import es.fjrj3d.seat_booker_api.models.EMovieGenre;
 import es.fjrj3d.seat_booker_api.models.EMovieUserRating;
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
-import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
