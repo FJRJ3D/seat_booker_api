@@ -24,6 +24,10 @@ public class MovieService {
         return iMovieRepository.findAll();
     }
 
+    public List<String> getAllMoviesTitles() {
+        return iMovieRepository.getAllMoviesTitles();
+    }
+
     public Movie getMovieById(Long id) {
         return iMovieRepository.findById(id)
                 .orElseThrow(() -> new MovieNotFoundException("Movie not found with ID: " + id));

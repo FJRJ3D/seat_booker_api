@@ -141,6 +141,16 @@ class MovieControllerTest {
     }
 
     @Test
+    void when_get_all_moviesTitles_then_returns_status_200_if_movies_exist() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/movie/titles")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers
+                        .content().json("[Interstellar, Titanic]"));
+    }
+
+    @Test
     void  when_get_movie_by_id_then_returns_status_200_if_movie_exists() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/movie/" + interstellar.getId())
                         .contentType(MediaType.APPLICATION_JSON)
