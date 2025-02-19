@@ -7,9 +7,11 @@ import es.fjrj3d.seat_booker_api.services.AuthService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,12 +24,17 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 class MovieControllerTest {
+
+    @MockBean
+    private OllamaChatModel chatModel;
 
     @Autowired
     private MockMvc mockMvc;
@@ -88,6 +95,9 @@ class MovieControllerTest {
 
     @Test
     void when_create_movie_then_returns_status_201() throws Exception {
+        when(chatModel.call(anyString())).thenReturn("Interstellar is a science fiction film directed by " +
+                "Christopher Nolan that explores themes of love.");
+
         mockMvc.perform(MockMvcRequestBuilders.post("/api/movie")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)

@@ -31,9 +31,7 @@ public class Movie {
     @Size(min = 1, max = 100)
     private String title;
 
-    @Column
-    @NotNull(message = "Synopsis cannot be null")
-    @Size(min = 1, max = 1000)
+    @Column(length = 10000)
     private String synopsis;
 
     @Enumerated(EnumType.STRING)

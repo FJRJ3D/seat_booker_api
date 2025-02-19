@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.ai.ollama.OllamaChatModel;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -26,6 +27,9 @@ class MovieServiceTest {
 
     @Mock
     private IMovieRepository iMovieRepository;
+
+    @Mock
+    private OllamaChatModel chatModel;
 
     @InjectMocks
     private MovieService movieService;
@@ -73,13 +77,15 @@ class MovieServiceTest {
     @Test
     void should_create_movie_when_valid_data_is_provided() {
         when(iMovieRepository.save(any(Movie.class))).thenReturn(interstellar);
+        when(chatModel.call(anyString())).thenReturn("Interstellar is a science fiction film directed by " +
+                "Christopher Nolan that explores themes of love.");
 
         Movie result = movieService.createMovie(interstellar);
 
         assertNotNull(result);
         assertEquals(1, result.getId());
         assertEquals("Interstellar", result.getTitle());
-        assertEquals("Interstellar is a science fiction film directed by Christopher Nolan that explores" +
+        assertEquals("Interstellar is a science fiction film directed by Christopher Nolan that explores " +
                 "themes of love.", result.getSynopsis());
         assertEquals(EMovieGenre.SCIENCE_FICTION, result.getGenre());
         assertEquals(EMovieAgeRating.SEVEN_PLUS, result.getAgeRating());
