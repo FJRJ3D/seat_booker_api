@@ -33,8 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class MovieControllerTest {
 
-    @MockBean
-    private OllamaChatModel chatModel;
+//    @MockBean
+//    private OllamaChatModel chatModel;
 
     @Autowired
     private MockMvc mockMvc;
@@ -93,11 +93,31 @@ class MovieControllerTest {
         movieList.add(titanic);
     }
 
+//    @Test
+//    void when_create_movie_then_returns_status_201() throws Exception {
+//        when(chatModel.call(anyString())).thenReturn("Interstellar is a science fiction film directed by " +
+//                "Christopher Nolan that explores themes of love.");
+//
+//        mockMvc.perform(MockMvcRequestBuilders.post("/api/movie")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+//                        .content("{\"title\":\"Interstellar\",\"synopsis\":\"Interstellar is a science fiction film directed" +
+//                                " by Christopher Nolan that explores themes of love.\",\"genre\":\"SCIENCE_FICTION\"," +
+//                                "\"ageRating\":\"SEVEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":\"https://pbs" +
+//                                ".twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg\",\"duration\":\"02:49\"," +
+//                                "\"premiere\":\"07-11-2014\"}\n"))
+//                .andExpect(status().isCreated())
+//                .andExpect(MockMvcResultMatchers
+//                        .content().json("{\"title\":\"Interstellar\",\"synopsis\":\"Interstellar is a " +
+//                                "science fiction film directed by Christopher Nolan that explores themes of love." +
+//                                "\",\"genre\":\"SCIENCE_FICTION\",\"ageRating\":\"SEVEN_PLUS\",\"userRating\":" +
+//                                "\"FIVE_STARS\",\"coverImageUrl\":\"https://pbs.twimg.com/profile_images/55849" +
+//                                "0159834857472/gpoC7V0X_400x400.jpeg\",\"duration\":\"02:49\",\"premiere\":" +
+//                                "\"07-11-2014\"}\n"));
+//    }
+
     @Test
     void when_create_movie_then_returns_status_201() throws Exception {
-        when(chatModel.call(anyString())).thenReturn("Interstellar is a science fiction film directed by " +
-                "Christopher Nolan that explores themes of love.");
-
         mockMvc.perform(MockMvcRequestBuilders.post("/api/movie")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)

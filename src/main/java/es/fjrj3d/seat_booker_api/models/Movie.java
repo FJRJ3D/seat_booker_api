@@ -27,39 +27,40 @@ public class Movie {
     private Long id;
 
     @Column
-    @NotNull(message = "Title cannot be null")
+    //@NotNull(message = "Title cannot be null")
     @Size(min = 1, max = 100)
     private String title;
 
     @Column(length = 10000)
+    //@NotNull(message = "Synopsis cannot be null")
     private String synopsis;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "Genre cannot be null")
+    //@NotNull(message = "Genre cannot be null")
     @Column
     private EMovieGenre genre;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "Age Rating cannot be null")
+    //@NotNull(message = "Age Rating cannot be null")
     @Column
     private EMovieAgeRating ageRating;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "User Rating cannot be null")
+    //@NotNull(message = "User Rating cannot be null")
     @Column
     private EMovieUserRating userRating;
 
     @Column
-    @NotNull(message = "Cover Image URL cannot be null")
+    //@NotNull(message = "Cover Image URL cannot be null")
     private String coverImageUrl;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     @Column
-    @NotNull(message = "Duration cannot be null")
+    //@NotNull(message = "Duration cannot be null")
     private LocalTime duration;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-    @NotNull(message = "Premiere cannot be null")
+    //@NotNull(message = "Premiere cannot be null")
     @Column
     private LocalDate premiere;
 
