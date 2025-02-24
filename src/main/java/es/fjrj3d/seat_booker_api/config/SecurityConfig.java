@@ -32,7 +32,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/api/auth/**", "/seat-booker-websocket", "/ai/generateStream").permitAll()
+                        req.requestMatchers("/api/auth/**", "/seat-booker-websocket", "/ai/generateStream", "/api/movie/now").permitAll()
                                 .requestMatchers("/api/user/{newRole}/**").hasAuthority("ADMIN")
                                 .anyRequest()
                                 .authenticated()

@@ -2,12 +2,14 @@ package es.fjrj3d.seat_booker_api.controllers;
 
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.services.MovieService;
+import es.fjrj3d.seat_booker_api.services.TmdbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
@@ -16,6 +18,18 @@ public class MovieController {
 
     @Autowired
     MovieService movieService;
+
+    private final TmdbService tmdbService;
+
+    public MovieController(TmdbService tmdbService) {
+        this.tmdbService = tmdbService;
+    }
+
+    @GetMapping("/now")
+    public ResponseEntity<Map<String, Object>> getUpcomingMovies() {
+        Map<String, Object> movies = tmdbService.getNowPlayingMovies();
+        return ResponseEntity.ok(movies);
+    }
 
     @PostMapping
     public ResponseEntity<Movie> createMovie(@Valid @RequestBody Movie movie) {
