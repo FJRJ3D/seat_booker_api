@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,5 +65,18 @@ public class TmdbService {
     public LocalDate convertToLocalDate(String releaseDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return LocalDate.parse(releaseDate, formatter);
+    }
+
+    public Integer getMovieDuration(Integer movieId) {
+        String url = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + apiKey;
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+
+        return response != null ? (Integer) response.get("runtime") : null;
+    }
+
+    public LocalTime convertIntegerToLocalTime(Integer minutes) {
+        int hours = minutes / 60;
+        int remainingMinutes = minutes % 60;
+        return LocalTime.of(hours, remainingMinutes);
     }
 }

@@ -41,19 +41,22 @@ public class MovieService {
 
             movie.setTitle((String) tmdbMovies.get(i).get("title"));
 
-//            String synopsis = (String) tmdbMovies.get(i).get("overview");
-//            movie.setSynopsis(chatModel.call("Esta es la synopsis de la pelicula: " + synopsis + ". Escibela de" +
-//                    "nuevo con otras palabras en Español, por favor."));
             String synopsis = (String) tmdbMovies.get(i).get("overview");
-            movie.setSynopsis(synopsis);
+            movie.setSynopsis(chatModel.call("Esta es la synopsis de la pelicula: " + synopsis + ". Escibela de" +
+                    "nuevo con otras palabras en Español, por favor. No escribas más nada, solo la synopsis"));
+//            String synopsis = (String) tmdbMovies.get(i).get("overview");
+//            movie.setSynopsis(synopsis);
 
             List<String> genreListString = tmdbService.getGenreNamesByIds((List<Integer>) tmdbMovies.get(i).get("genre_ids"));
             movie.setGenre(genreListString);
 
-            movie.setCoverImageUrl((String) tmdbMovies.get(i).get("poster_path"));
+            movie.setCoverImageUrl("https://image.tmdb.org/t/p/w1280" + tmdbMovies.get(i).get("poster_path"));
+
+            Integer getTimeMovie = (Integer) tmdbMovies.get(i).get("id");
+            Integer timeMovieInMinutes = tmdbService.getMovieDuration(getTimeMovie);
+            movie.setDuration(tmdbService.convertIntegerToLocalTime(timeMovieInMinutes));
 
             movie.setPremiere(tmdbService.convertToLocalDate((String) tmdbMovies.get(i).get("release_date")));
-
 
             movieList.add(movie);
         }
