@@ -8,7 +8,9 @@ import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -18,12 +20,45 @@ public class MovieService {
     IMovieRepository iMovieRepository;
 
     @Autowired
+    TmdbService tmdbService;
+
+    @Autowired
     OllamaChatModel chatModel;
 
-    public Movie createMovie(Movie movie) {
-        movie.setSynopsis(chatModel.call("Generame la sinopsis de la pelicula: " + movie.getTitle() + ", solo " +
-                "el texto de la sinopsis, sin nada más, ni la palabra sipnosis ni nada"));
-        return iMovieRepository.save(movie);
+//    public Movie createMovie(Movie movie) {
+//        movie.setSynopsis(chatModel.call("Generame la sinopsis de la pelicula: " + movie.getTitle() + ", solo " +
+//                "el texto de la sinopsis, sin nada más, ni la palabra sipnosis ni nada"));
+//        return iMovieRepository.save(movie);
+//    }
+
+    public List<Movie> createMovies() {
+        List<Map<String, Object>> tmdbMovies = (List<Map<String, Object>>) tmdbService.getNowPlayingMovies().get("results");
+        Movie movie;
+        List<Movie> movieList = new ArrayList<>();
+
+        for (int i = 0; i<15; i++){
+            movie = new Movie();
+
+            movie.setTitle((String) tmdbMovies.get(i).get("title"));
+
+//            String synopsis = (String) tmdbMovies.get(i).get("overview");
+//            movie.setSynopsis(chatModel.call("Esta es la synopsis de la pelicula: " + synopsis + ". Escibela de" +
+//                    "nuevo con otras palabras en Español, por favor."));
+            String synopsis = (String) tmdbMovies.get(i).get("overview");
+            movie.setSynopsis(synopsis);
+
+            List<String> genreListString = tmdbService.getGenreNamesByIds((List<Integer>) tmdbMovies.get(i).get("genre_ids"));
+            movie.setGenre(genreListString);
+
+            movie.setCoverImageUrl((String) tmdbMovies.get(i).get("poster_path"));
+
+            movie.setPremiere(tmdbService.convertToLocalDate((String) tmdbMovies.get(i).get("release_date")));
+
+
+            movieList.add(movie);
+        }
+
+        return iMovieRepository.saveAll(movieList);
     }
 
     public List<Movie> getAllMovies() {

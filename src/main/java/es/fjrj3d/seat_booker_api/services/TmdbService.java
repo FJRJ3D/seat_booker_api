@@ -5,7 +5,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -26,5 +31,38 @@ public class TmdbService {
                 + "&sort_by=popularity.desc&api_key=" + apiKey;
 
         return restTemplate.getForObject(url, Map.class);
+    }
+
+    public List<String> getGenreNamesByIds(List<Integer> genreIds) {
+        Map<Integer, String> genreMap = new HashMap<>();
+
+        genreMap.put(28, "Acción");
+        genreMap.put(12, "Aventura");
+        genreMap.put(16, "Animación");
+        genreMap.put(35, "Comedia");
+        genreMap.put(80, "Crimen");
+        genreMap.put(99, "Documental");
+        genreMap.put(18, "Drama");
+        genreMap.put(10751, "Familiar");
+        genreMap.put(14, "Fantasía");
+        genreMap.put(36, "Historia");
+        genreMap.put(27, "Terror");
+        genreMap.put(10402, "Música");
+        genreMap.put(9648, "Misterio");
+        genreMap.put(10749, "Romance");
+        genreMap.put(878, "Ciencia Ficción");
+        genreMap.put(10770, "Película de TV");
+        genreMap.put(53, "Suspense");
+        genreMap.put(10752, "Guerra");
+        genreMap.put(37, "Western");
+
+        return genreIds.stream()
+                .map(id -> genreMap.getOrDefault(id, "Género desconocido"))
+                .collect(Collectors.toList());
+    }
+
+    public LocalDate convertToLocalDate(String releaseDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return LocalDate.parse(releaseDate, formatter);
     }
 }

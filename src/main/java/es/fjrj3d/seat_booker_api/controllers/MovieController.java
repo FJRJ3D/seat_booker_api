@@ -32,10 +32,15 @@ public class MovieController {
     }
 
     @PostMapping
-    public ResponseEntity<Movie> createMovie(@Valid @RequestBody Movie movie) {
-        Movie createdMovie = movieService.createMovie(movie);
-        return ResponseEntity.status(201).body(createdMovie);
+    public List<Movie> setAllMovies (){
+        return movieService.createMovies();
     }
+
+//    @PostMapping
+//    public ResponseEntity<Movie> createMovie(@Valid @RequestBody Movie movie) {
+//        Movie createdMovie = movieService.createMovie(movie);
+//        return ResponseEntity.status(201).body(createdMovie);
+//    }
 
     @GetMapping
     public ResponseEntity<List<Movie>> getAllMovies() {

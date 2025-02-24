@@ -12,6 +12,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -31,21 +32,21 @@ public class Movie {
     @Size(min = 1, max = 100)
     private String title;
 
+    @NotNull(message = "Synopsis cannot be null")
     @Column(length = 10000)
     private String synopsis;
 
-    @Enumerated(EnumType.STRING)
     @NotNull(message = "Genre cannot be null")
     @Column
-    private EMovieGenre genre;
+    private List<String> genre;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "Age Rating cannot be null")
+//    @NotNull(message = "Age Rating cannot be null")
     @Column
     private EMovieAgeRating ageRating;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "User Rating cannot be null")
+//    @NotNull(message = "User Rating cannot be null")
     @Column
     private EMovieUserRating userRating;
 
@@ -56,7 +57,7 @@ public class Movie {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     @Column
     @NotNull(message = "Duration cannot be null")
-    private LocalTime duration;
+    private LocalTime duration= LocalTime.now();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @NotNull(message = "Premiere cannot be null")
