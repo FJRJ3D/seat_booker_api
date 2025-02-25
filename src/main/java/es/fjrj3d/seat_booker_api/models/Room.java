@@ -31,21 +31,21 @@ public class Room {
     private String roomName;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "Room Type cannot be null")
+    //@NotNull(message = "Room Type cannot be null")
     @Column
-    private ERoomType roomType;
+    private ERoomType roomType=ERoomType.STANDARD;
 
     @Column
     @Min(5)
     @Max(10)
-    @NotNull(message = "Row Quantity cannot be null")
-    private Integer rowQuantity;
+    //@NotNull(message = "Row Quantity cannot be null")
+    private Integer rowQuantity=5;
 
     @Column
     @Min(8)
     @Max(12)
-    @NotNull(message = "Seat Quantity cannot be null")
-    private Integer seatQuantity;
+    //@NotNull(message = "Seat Quantity cannot be null")
+    private Integer seatQuantity=8;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id")

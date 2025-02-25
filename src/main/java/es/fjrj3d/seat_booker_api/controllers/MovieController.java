@@ -75,4 +75,9 @@ public class MovieController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @DeleteMapping ("/now")
+    public String deleteAllMovies (){
+        return movieService.deleteAllMovies();
+    }
 }

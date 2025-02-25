@@ -2,6 +2,8 @@ package es.fjrj3d.seat_booker_api.services;
 
 import es.fjrj3d.seat_booker_api.exceptions.MovieNotFoundException;
 import es.fjrj3d.seat_booker_api.models.Movie;
+import es.fjrj3d.seat_booker_api.models.Room;
+import es.fjrj3d.seat_booker_api.models.Screening;
 import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.ai.ollama.OllamaChatModel;
@@ -20,6 +22,15 @@ public class MovieService {
     IMovieRepository iMovieRepository;
 
     @Autowired
+    RoomService roomService;
+
+    @Autowired
+    ScreeningService screeningService;
+
+    @Autowired
+    SeatService seatService;
+
+    @Autowired
     TmdbService tmdbService;
 
     @Autowired
@@ -34,6 +45,8 @@ public class MovieService {
     public List<Movie> createMovies() {
         List<Map<String, Object>> tmdbMovies = (List<Map<String, Object>>) tmdbService.getNowPlayingMovies().get("results");
         Movie movie;
+        Room room;
+        Screening screening;
         List<Movie> movieList = new ArrayList<>();
 
         for (int i = 0; i<15; i++){
@@ -66,7 +79,20 @@ public class MovieService {
             movieList.add(movie);
         }
 
-        return iMovieRepository.saveAll(movieList);
+        List<Movie> allMovies = iMovieRepository.saveAll(movieList);
+
+        for (int i = 0; i<movieList.size(); i++){
+            room = new Room();
+            String titleMovie = movieList.get(i).getTitle();
+            String roomName = roomService.createRoom(room, titleMovie).getRoomName();
+            for (int e = 0; e<7; e++){
+                screening = new Screening();
+                screeningService.createScreening(screening, roomName);
+                seatService.createSeatsForScreening(screening, room);
+            }
+        }
+
+        return allMovies;
     }
 
     public List<Movie> getAllMovies() {
@@ -146,6 +172,11 @@ public class MovieService {
         }
 
         iMovieRepository.deleteAll(movies);
+        return "Movies were successfully deleted";
+    }
+
+    public String deleteAllMovies(){
+        iMovieRepository.deleteAll();
         return "Movies were successfully deleted";
     }
 }
