@@ -34,8 +34,43 @@ public class RoomService {
         String generatedRoomName = "Room " + roomNumber;
         room.setRoomName(generatedRoomName);
 
+        seatQuantity(room, generatedRoomName);
+
         room.setMovie(movie);
         return iRoomRepository.save(room);
+    }
+
+    private static void seatQuantity(Room room, String generatedRoomName) {
+        if (generatedRoomName.equals("Room 1") ||
+                generatedRoomName.equals("Room 2") ||
+                generatedRoomName.equals("Room 3")) {
+            room.setRowQuantity(10);
+            room.setSeatQuantity(12);
+        }
+
+        if (generatedRoomName.equals("Room 4") ||
+                generatedRoomName.equals("Room 5") ||
+                generatedRoomName.equals("Room 6") ||
+                generatedRoomName.equals("Room 7") ||
+                generatedRoomName.equals("Room 8")){
+            room.setRowQuantity(6);
+            room.setSeatQuantity(10);
+        }
+
+        if (generatedRoomName.equals("Room 9") ||
+                generatedRoomName.equals("Room 10") ||
+                generatedRoomName.equals("Room 11") ||
+                generatedRoomName.equals("Room 12") ||
+                generatedRoomName.equals("Room 13")){
+            room.setRowQuantity(8);
+            room.setSeatQuantity(9);
+        }
+
+        if (generatedRoomName.equals("Room 14") ||
+                generatedRoomName.equals("Room 15")){
+            room.setRowQuantity(5);
+            room.setSeatQuantity(8);
+        }
     }
 
     public List<Room> getAllRooms() {
@@ -64,9 +99,6 @@ public class RoomService {
 
         if (room.getRoomName() != null) {
             existingRoom.setRoomName(room.getRoomName());
-        }
-        if (room.getRoomType() != null) {
-            existingRoom.setRoomType(room.getRoomType());
         }
         if (room.getRowQuantity() != null) {
             existingRoom.setRowQuantity(room.getRowQuantity());

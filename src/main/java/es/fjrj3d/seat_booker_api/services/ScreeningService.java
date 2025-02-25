@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,7 @@ public class ScreeningService {
     public Screening createScreening(Screening screening, String roomName) {
         Room room = iRoomRepository.findByRoomName(roomName)
                 .orElseThrow(() -> new ScreeningNotFoundException("Room not found with name: " +roomName));
+
         screening.setRoom(room);
         return iScreeningRepository.save(screening);
     }

@@ -10,6 +10,8 @@ import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,8 +87,22 @@ public class MovieService {
             room = new Room();
             String titleMovie = movieList.get(i).getTitle();
             String roomName = roomService.createRoom(room, titleMovie).getRoomName();
-            for (int e = 0; e<7; e++){
+            for (int e = 0; e<4; e++){
                 screening = new Screening();
+                if (e==0){
+                    screening.setSchedule(LocalTime.of(9,13));
+                }
+                if (e==1){
+                    screening.setSchedule(LocalTime.of(15,15));
+                }
+                if (e==2){
+                    screening.setSchedule(LocalTime.of(19,30));
+                }
+                if (e==3){
+                    screening.setSchedule(LocalTime.of(23,35));
+                }
+
+                screening.setDuration(Duration.between(LocalTime.MIN, movieList.get(i).getDuration()));
                 screeningService.createScreening(screening, roomName);
                 seatService.createSeatsForScreening(screening, room);
             }
