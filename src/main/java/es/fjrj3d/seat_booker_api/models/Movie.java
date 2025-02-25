@@ -24,7 +24,7 @@ import java.util.Set;
 public class Movie {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
     private Long id;
 
     @Column
@@ -40,10 +40,9 @@ public class Movie {
     @Column
     private List<String> genre;
 
-    @Enumerated(EnumType.STRING)
-//    @NotNull(message = "Age Rating cannot be null")
+    @NotNull(message = "Age Rating cannot be null")
     @Column
-    private EMovieAgeRating ageRating;
+    private String ageRating;
 
     @Enumerated(EnumType.STRING)
 //    @NotNull(message = "User Rating cannot be null")
@@ -57,7 +56,7 @@ public class Movie {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     @Column
     @NotNull(message = "Duration cannot be null")
-    private LocalTime duration= LocalTime.now();
+    private LocalTime duration;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @NotNull(message = "Premiere cannot be null")

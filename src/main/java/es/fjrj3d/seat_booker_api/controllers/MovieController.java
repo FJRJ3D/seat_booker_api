@@ -25,13 +25,7 @@ public class MovieController {
         this.tmdbService = tmdbService;
     }
 
-    @GetMapping("/now")
-    public ResponseEntity<Map<String, Object>> getUpcomingMovies() {
-        Map<String, Object> movies = tmdbService.getNowPlayingMovies();
-        return ResponseEntity.ok(movies);
-    }
-
-    @PostMapping
+    @PostMapping("/now")
     public List<Movie> setAllMovies (){
         return movieService.createMovies();
     }

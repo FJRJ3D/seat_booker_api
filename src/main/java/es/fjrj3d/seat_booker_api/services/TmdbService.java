@@ -79,4 +79,30 @@ public class TmdbService {
         int remainingMinutes = minutes % 60;
         return LocalTime.of(hours, remainingMinutes);
     }
+
+    public String getMovieAgeRatingById(Long movieId) {
+        String url = "https://api.themoviedb.org/3/movie/" + movieId + "/release_dates?api_key=" + apiKey;
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+
+        if (response != null && response.containsKey("results")) {
+            List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
+
+            String certification = getString(results);
+            if (certification != null) return certification;
+        }
+        return "Sin clasificación";
+    }
+
+    private static String getString(List<Map<String, Object>> results) {
+        for (Map<String, Object> countryData : results) {
+            if ("ES".equals(countryData.get("iso_3166_1"))) {
+                List<Map<String, Object>> releaseDates = (List<Map<String, Object>>) countryData.get("release_dates");
+                if (releaseDates != null && !releaseDates.isEmpty()) {
+                    String certification = (String) releaseDates.get(0).get("certification");
+                    return certification != null && !certification.isEmpty() ? certification : "Sin clasificación";
+                }
+            }
+        }
+        return null;
+    }
 }

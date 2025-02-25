@@ -39,6 +39,9 @@ public class MovieService {
         for (int i = 0; i<15; i++){
             movie = new Movie();
 
+            Integer intValue = (Integer) tmdbMovies.get(i).get("id");
+            movie.setId(intValue.longValue());
+
             movie.setTitle((String) tmdbMovies.get(i).get("title"));
 
             String synopsis = (String) tmdbMovies.get(i).get("overview");
@@ -49,6 +52,8 @@ public class MovieService {
 
             List<String> genreListString = tmdbService.getGenreNamesByIds((List<Integer>) tmdbMovies.get(i).get("genre_ids"));
             movie.setGenre(genreListString);
+
+            movie.setAgeRating(tmdbService.getMovieAgeRatingById(intValue.longValue()));
 
             movie.setCoverImageUrl("https://image.tmdb.org/t/p/w1280" + tmdbMovies.get(i).get("poster_path"));
 
