@@ -44,10 +44,9 @@ public class Movie {
     @Column
     private String ageRating;
 
-    @Enumerated(EnumType.STRING)
-//    @NotNull(message = "User Rating cannot be null")
+    @NotNull(message = "User Rating cannot be null")
     @Column
-    private EMovieUserRating userRating;
+    private String userRating = "Sin calificación";
 
     @Column
     @NotNull(message = "Cover Image URL cannot be null")
