@@ -39,29 +39,26 @@ public class ScreeningService {
 
     Screening screening;
 
-    public void createScreening(String roomName, List<Movie> movieList, int i) {
+    public void createScreening(Room room, Movie movie) {
         screening = new Screening();
-
-        Room room = iRoomRepository.findByRoomName(roomName)
-                .orElseThrow(() -> new ScreeningNotFoundException("Room not found with name: " +roomName));
 
         LocalTime openingTime = LocalTime.of(12, 30);
         LocalTime closingTime = LocalTime.of(23, 59);
 
-        Duration movieDuration = Duration.between(LocalTime.MIN, movieList.get(i).getDuration());
+        Duration movieDuration = Duration.between(LocalTime.MIN, movie.getDuration());
         int totalMinutes = (int) movieDuration.toMinutes();
         int maxSessions = (int) Duration.between(openingTime, closingTime).toMinutes() / (totalMinutes + 10);
 
         LocalTime startTime = openingTime;
 
-        for (int e = 0; e<maxSessions; e++){
+        for (int i = 0; i<maxSessions; i++){
             if (startTime.plusMinutes(totalMinutes).isAfter(closingTime)) {
                 break;
             }
 
             screening = new Screening();
             screening.setSchedule(startTime);
-            screening.setDuration(Duration.between(LocalTime.MIN, movieList.get(i).getDuration()));
+            screening.setDuration(Duration.between(LocalTime.MIN, movie.getDuration()));
 
             screening.setRoom(room);
             iScreeningRepository.save(screening);

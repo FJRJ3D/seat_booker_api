@@ -24,11 +24,8 @@ public class RoomService {
 
     Room room;
 
-    public Room createRoom(String movieTitle) {
+    public Room createRoom(Movie movie) {
         room = new Room();
-
-        Movie movie = iMovieRepository.findByTitle(movieTitle)
-                .orElseThrow(() -> new MovieNotFoundException("Movie not found with title: " + movieTitle));
 
         int roomNumber = 1;
         while (iRoomRepository.existsByRoomName("Room " + roomNumber)) {
