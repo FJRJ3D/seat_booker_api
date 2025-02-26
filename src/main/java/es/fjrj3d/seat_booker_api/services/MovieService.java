@@ -30,9 +30,6 @@ public class MovieService {
     ScreeningService screeningService;
 
     @Autowired
-    SeatService seatService;
-
-    @Autowired
     TmdbService tmdbService;
 
     @Autowired
@@ -47,8 +44,6 @@ public class MovieService {
     public List<Movie> createMovies() {
         List<Map<String, Object>> tmdbMovies = (List<Map<String, Object>>) tmdbService.getNowPlayingMovies().get("results");
         Movie movie;
-        Room room;
-        Screening screening;
         List<Movie> movieList = new ArrayList<>();
 
         for (int i = 0; i<15; i++){
@@ -84,34 +79,11 @@ public class MovieService {
 
         iMovieRepository.saveAll(movieList);
 
-        LocalTime openingTime = LocalTime.of(12, 30);
-        LocalTime closingTime = LocalTime.of(23, 59);
-
         for (int i = 0; i<movieList.size(); i++){
-            room = new Room();
             String titleMovie = movieList.get(i).getTitle();
-            String roomName = roomService.createRoom(room, titleMovie).getRoomName();
+            String roomName = roomService.createRoom(titleMovie).getRoomName();
 
-            Duration movieDuration = Duration.between(LocalTime.MIN, movieList.get(i).getDuration());
-            int totalMinutes = (int) movieDuration.toMinutes();
-            int maxSessions = (int) Duration.between(openingTime, closingTime).toMinutes() / (totalMinutes + 10);
-
-            LocalTime startTime = openingTime;
-
-            for (int e = 0; e<maxSessions; e++){
-                if (startTime.plusMinutes(totalMinutes).isAfter(closingTime)) {
-                    break;
-                }
-
-                screening = new Screening();
-                screening.setSchedule(startTime);
-                screening.setDuration(Duration.between(LocalTime.MIN, movieList.get(i).getDuration()));
-
-                screeningService.createScreening(screening, roomName);
-                seatService.createSeatsForScreening(screening, room);
-
-                startTime = startTime.plusMinutes(totalMinutes + 10);
-            }
+            screeningService.createScreening(roomName, movieList, i);
         }
 
         return iMovieRepository.findAll();

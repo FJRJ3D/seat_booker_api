@@ -22,7 +22,11 @@ public class RoomService {
     @Autowired
     IMovieRepository iMovieRepository;
 
-    public Room createRoom(Room room, String movieTitle) {
+    Room room;
+
+    public Room createRoom(String movieTitle) {
+        room = new Room();
+
         Movie movie = iMovieRepository.findByTitle(movieTitle)
                 .orElseThrow(() -> new MovieNotFoundException("Movie not found with title: " + movieTitle));
 
@@ -53,8 +57,8 @@ public class RoomService {
                 generatedRoomName.equals("Room 6") ||
                 generatedRoomName.equals("Room 7") ||
                 generatedRoomName.equals("Room 8")){
-            room.setRowQuantity(6);
-            room.setSeatQuantity(10);
+            room.setRowQuantity(8);
+            room.setSeatQuantity(9);
         }
 
         if (generatedRoomName.equals("Room 9") ||
@@ -62,8 +66,8 @@ public class RoomService {
                 generatedRoomName.equals("Room 11") ||
                 generatedRoomName.equals("Room 12") ||
                 generatedRoomName.equals("Room 13")){
-            room.setRowQuantity(8);
-            room.setSeatQuantity(9);
+            room.setRowQuantity(6);
+            room.setSeatQuantity(10);
         }
 
         if (generatedRoomName.equals("Room 14") ||

@@ -25,13 +25,13 @@ public class ScreeningController {
     @Autowired
     RoomService roomService;
 
-    @PostMapping(path = "/{roomName}")
-    public Screening createScreening(@RequestBody Screening screening, @PathVariable String roomName) {
-        Screening createdScreening = screeningService.createScreening(screening, roomName);
-        Room room = roomService.getRoomByName(roomName);
-        seatService.createSeatsForScreening(createdScreening, room);
-        return createdScreening;
-    }
+//    @PostMapping(path = "/{roomName}")
+//    public Screening createScreening(@RequestBody Screening screening, @PathVariable String roomName) {
+//        Screening createdScreening = screeningService.createScreening(screening, roomName);
+//        Room room = roomService.getRoomByName(roomName);
+//        seatService.createSeatsForScreening(createdScreening, room);
+//        return createdScreening;
+//    }
 
     @GetMapping
     public List<Screening> getAllScreenings() {

@@ -2,6 +2,7 @@ package es.fjrj3d.seat_booker_api.services;
 
 import es.fjrj3d.seat_booker_api.exceptions.RoomNotFoundException;
 import es.fjrj3d.seat_booker_api.exceptions.ScreeningNotFoundException;
+import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.models.Room;
 import es.fjrj3d.seat_booker_api.models.Screening;
 import es.fjrj3d.seat_booker_api.repositories.IRoomRepository;
@@ -25,6 +26,9 @@ public class ScreeningService {
     IScreeningRepository iScreeningRepository;
 
     @Autowired
+    SeatService seatService;
+
+    @Autowired
     WebSocketService webSocketService;
 
     @Autowired
@@ -33,12 +37,39 @@ public class ScreeningService {
     @Autowired
     PaymentService paymentService;
 
-    public Screening createScreening(Screening screening, String roomName) {
+    Screening screening;
+
+    public void createScreening(String roomName, List<Movie> movieList, int i) {
+        screening = new Screening();
+
         Room room = iRoomRepository.findByRoomName(roomName)
                 .orElseThrow(() -> new ScreeningNotFoundException("Room not found with name: " +roomName));
 
-        screening.setRoom(room);
-        return iScreeningRepository.save(screening);
+        LocalTime openingTime = LocalTime.of(12, 30);
+        LocalTime closingTime = LocalTime.of(23, 59);
+
+        Duration movieDuration = Duration.between(LocalTime.MIN, movieList.get(i).getDuration());
+        int totalMinutes = (int) movieDuration.toMinutes();
+        int maxSessions = (int) Duration.between(openingTime, closingTime).toMinutes() / (totalMinutes + 10);
+
+        LocalTime startTime = openingTime;
+
+        for (int e = 0; e<maxSessions; e++){
+            if (startTime.plusMinutes(totalMinutes).isAfter(closingTime)) {
+                break;
+            }
+
+            screening = new Screening();
+            screening.setSchedule(startTime);
+            screening.setDuration(Duration.between(LocalTime.MIN, movieList.get(i).getDuration()));
+
+            screening.setRoom(room);
+            iScreeningRepository.save(screening);
+
+            seatService.createSeatsForScreening(screening, room);
+
+            startTime = startTime.plusMinutes(totalMinutes + 10);
+        }
     }
 
     public List<Screening> getAllScreenings(){
