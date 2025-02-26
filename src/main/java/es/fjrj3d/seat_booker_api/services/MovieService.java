@@ -82,7 +82,7 @@ public class MovieService {
             movieList.add(movie);
         }
 
-        List<Movie> allMovies = iMovieRepository.saveAll(movieList);
+        iMovieRepository.saveAll(movieList);
 
         LocalTime openingTime = LocalTime.of(12, 30);
         LocalTime closingTime = LocalTime.of(23, 59);
@@ -114,7 +114,7 @@ public class MovieService {
             }
         }
 
-        return allMovies;
+        return iMovieRepository.findAll();
     }
 
     public List<Movie> getAllMovies() {
