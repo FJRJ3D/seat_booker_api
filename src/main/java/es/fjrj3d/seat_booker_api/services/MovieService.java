@@ -60,8 +60,9 @@ public class MovieService {
             movie.setTitle((String) tmdbMovies.get(i).get("title"));
 
             String synopsis = (String) tmdbMovies.get(i).get("overview");
-            movie.setSynopsis(chatModel.call("Esta es una synopsis de una pelicula:\n" + synopsis + "\nReescribela" +
-                    "nuevo con en Español, por favor. No escribas más nada, solo la synopsis"));
+            movie.setSynopsis(chatModel.call("Esta es una synopsis de una pelicula:\n\n" + synopsis + "\n\nEscribemela " +
+                    "de nuevo, pero que no se parezca a la original, quedate con la historia y escribela como creas" +
+                    " mas oportuno, no añadas nada mas aparte de la synopsis que generes."));
 //            String synopsis = (String) tmdbMovies.get(i).get("overview");
 //            movie.setSynopsis(synopsis);
 
