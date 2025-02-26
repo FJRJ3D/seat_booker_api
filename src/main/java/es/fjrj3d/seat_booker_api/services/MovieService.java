@@ -59,11 +59,11 @@ public class MovieService {
 
             movie.setTitle((String) tmdbMovies.get(i).get("title"));
 
-//            String synopsis = (String) tmdbMovies.get(i).get("overview");
-//            movie.setSynopsis(chatModel.call("Esta es la synopsis de la pelicula: " + synopsis + ". Escibela de" +
-//                    "nuevo con otras palabras en Español, por favor. No escribas más nada, solo la synopsis"));
             String synopsis = (String) tmdbMovies.get(i).get("overview");
-            movie.setSynopsis(synopsis);
+            movie.setSynopsis(chatModel.call("Esta es una synopsis de una pelicula:\n" + synopsis + "\nReescribela" +
+                    "nuevo con en Español, por favor. No escribas más nada, solo la synopsis"));
+//            String synopsis = (String) tmdbMovies.get(i).get("overview");
+//            movie.setSynopsis(synopsis);
 
             List<String> genreListString = tmdbService.getGenreNamesByIds((List<Integer>) tmdbMovies.get(i).get("genre_ids"));
             movie.setGenre(genreListString);
@@ -83,22 +83,33 @@ public class MovieService {
 
         List<Movie> allMovies = iMovieRepository.saveAll(movieList);
 
+        LocalTime openingTime = LocalTime.of(12, 30);
+        LocalTime closingTime = LocalTime.of(23, 59);
+
         for (int i = 0; i<movieList.size(); i++){
             room = new Room();
             String titleMovie = movieList.get(i).getTitle();
             String roomName = roomService.createRoom(room, titleMovie).getRoomName();
-            for (int e = 0; e<5; e++){
+
+            Duration movieDuration = Duration.between(LocalTime.MIN, movieList.get(i).getDuration());
+            int totalMinutes = (int) movieDuration.toMinutes();
+            int maxSessions = (int) Duration.between(openingTime, closingTime).toMinutes() / (totalMinutes + 10);
+
+            LocalTime startTime = openingTime;
+
+            for (int e = 0; e<maxSessions; e++){
+                if (startTime.plusMinutes(totalMinutes).isAfter(closingTime)) {
+                    break;
+                }
+
                 screening = new Screening();
-
-                Duration movieDuration = Duration.between(LocalTime.MIN, movieList.get(i).getDuration());
-                int offsetMinutes = (int) ((movieDuration.toMinutes()+10) * e);
-                LocalTime startTime = LocalTime.of(8, 45).plusMinutes(offsetMinutes);
-
                 screening.setSchedule(startTime);
                 screening.setDuration(Duration.between(LocalTime.MIN, movieList.get(i).getDuration()));
 
                 screeningService.createScreening(screening, roomName);
-                //seatService.createSeatsForScreening(screening, room);
+                seatService.createSeatsForScreening(screening, room);
+
+                startTime = startTime.plusMinutes(totalMinutes + 10);
             }
         }
 
