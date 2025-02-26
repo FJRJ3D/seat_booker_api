@@ -48,8 +48,6 @@ public class MovieService {
         for (int i = 0; i<15; i++){
             movie = new Movie();
 
-            Integer intValue = (Integer) tmdbMovies.get(i).get("id");
-            movie.setId(intValue.longValue());
             movie.setTitle((String) tmdbMovies.get(i).get("title"));
             String synopsis = (String) tmdbMovies.get(i).get("overview");
             movie.setSynopsis(chatModel.call("Esta es una synopsis de una pelicula:\n\n" + synopsis + "\n\nEscribemela " +
@@ -57,6 +55,7 @@ public class MovieService {
                     " mas oportuno, no añadas nada mas aparte de la synopsis que generes."));
             List<String> genreListString = tmdbService.getGenreNamesByIds((List<Integer>) tmdbMovies.get(i).get("genre_ids"));
             movie.setGenre(genreListString);
+            Integer intValue = (Integer) tmdbMovies.get(i).get("id");
             movie.setAgeRating(tmdbService.getMovieAgeRatingById(intValue.longValue()));
             movie.setCoverImageUrl("https://image.tmdb.org/t/p/w1280" + tmdbMovies.get(i).get("poster_path"));
             Integer getTimeMovie = (Integer) tmdbMovies.get(i).get("id");

@@ -24,7 +24,7 @@ import java.util.Set;
 public class Movie {
 
     @Id
-    @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
