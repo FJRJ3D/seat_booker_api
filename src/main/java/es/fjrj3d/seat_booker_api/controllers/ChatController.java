@@ -15,6 +15,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -34,11 +35,17 @@ public class ChatController {
 
     @GetMapping(value = "/ai/generateStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ChatResponse> generateStream(@RequestParam(value = "message", defaultValue = "Cuentame un chiste") String message) {
-        Prompt prompt = new Prompt(new UserMessage("[Contexto Conversacion]\nSoy Fran y ya me conoces y tu eres Chanchito Feliz mi asistente personal de este cine que tiene en la cartelera las siguientes peliculas: " +movieService.getAllMoviesTitles()+ ".\nAnteriormente he visto y me han gustado: Avatar, Interstellar y Solaris.\n[Historial Conversación]\n" + history + "\n" + "[Pregunta]\n" + message));
+        Prompt prompt = new Prompt(new UserMessage("[Contexto Conversacion]\n\nSoy Fran y ya me conoces y tu eres Chanchito Feliz mi asistente personal de este cine que tiene en la cartelera las siguientes peliculas: " +movieService.getAllMoviesTitles()+ ".\n\nAnteriormente he visto y me han gustado: Avatar, Interstellar y Solaris.\n\n[Instrucciones]\n\nQuiero que si te digo que borres todas las peliculas me contestes: Borrando.\n\nQuiero que si te digo que crees todas las peliculas me contestes: Creando.\n\n[Historial Conversación]\n\n" + history + "\n\n" + "[Pregunta]\n\n" + message));
 
         String qwen = "Tu: " + this.chatModel.call(prompt).toString() + "\n";
         history.add("Yo: " + message + "\n");
         history.add(qwen);
+
+        if (this.chatModel.call(prompt.getContents().toString()).equals("Borrando.")){
+            movieService.deleteAllMovies();
+        } else if (this.chatModel.call(prompt.getContents().toString()).equals("Creando.")) {
+            movieService.createMovieList();
+        }
 
         return this.chatModel.stream(prompt);
     }
