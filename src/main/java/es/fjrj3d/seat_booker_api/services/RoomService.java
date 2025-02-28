@@ -20,6 +20,9 @@ public class RoomService {
     IRoomRepository iRoomRepository;
 
     @Autowired
+    ScreeningService screeningService;
+
+    @Autowired
     IMovieRepository iMovieRepository;
 
     Room room;
@@ -38,7 +41,10 @@ public class RoomService {
         seatQuantity(room, generatedRoomName);
 
         room.setMovie(movie);
-        return iRoomRepository.save(room);
+        Room roomSaved = iRoomRepository.save(room);
+        screeningService.createScreening(room, movie);
+
+        return roomSaved;
     }
 
     private static void seatQuantity(Room room, String generatedRoomName) {

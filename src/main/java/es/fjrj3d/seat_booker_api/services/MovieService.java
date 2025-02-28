@@ -27,9 +27,6 @@ public class MovieService {
     RoomService roomService;
 
     @Autowired
-    ScreeningService screeningService;
-
-    @Autowired
     TmdbService tmdbService;
 
     @Autowired
@@ -41,34 +38,35 @@ public class MovieService {
 //        return iMovieRepository.save(movie);
 //    }
 
-    public List<Movie> createMovies() {
-        List<Map<String, Object>> tmdbMovies = (List<Map<String, Object>>) tmdbService.getNowPlayingMovies().get("results");
-        Movie movie;
-
+    public void createMovieList (){
         for (int i = 0; i<15; i++){
-            movie = new Movie();
-
-            movie.setTitle((String) tmdbMovies.get(i).get("title"));
-            String synopsis = (String) tmdbMovies.get(i).get("overview");
-            movie.setSynopsis(chatModel.call("Esta es una synopsis de una pelicula:\n\n" + synopsis + "\n\nEscribemela " +
-                    "de nuevo, pero que no se parezca a la original, quedate con la historia y escribela como creas" +
-                    " mas oportuno, no añadas nada mas aparte de la synopsis que generes."));
-            List<String> genreListString = tmdbService.getGenreNamesByIds((List<Integer>) tmdbMovies.get(i).get("genre_ids"));
-            movie.setGenre(genreListString);
-            Integer intValue = (Integer) tmdbMovies.get(i).get("id");
-            movie.setAgeRating(tmdbService.getMovieAgeRatingById(intValue.longValue()));
-            movie.setCoverImageUrl("https://image.tmdb.org/t/p/w1280" + tmdbMovies.get(i).get("poster_path"));
-            Integer getTimeMovie = (Integer) tmdbMovies.get(i).get("id");
-            Integer timeMovieInMinutes = tmdbService.getMovieDuration(getTimeMovie);
-            movie.setDuration(tmdbService.convertIntegerToLocalTime(timeMovieInMinutes));
-            movie.setPremiere(tmdbService.convertToLocalDate((String) tmdbMovies.get(i).get("release_date")));
-            iMovieRepository.save(movie);
-
-            Room room = roomService.createRoom(movie);
-            screeningService.createScreening(room, movie);
+            createMovie(i);
         }
+    }
 
-        return iMovieRepository.findAll();
+    public Movie createMovie(int i) {
+        Movie movie = new Movie();
+        List<Map<String, Object>> tmdbMovies = (List<Map<String, Object>>) tmdbService.getNowPlayingMovies().get("results");
+
+        movie.setTitle((String) tmdbMovies.get(i).get("title"));
+        String synopsis = (String) tmdbMovies.get(i).get("overview");
+        movie.setSynopsis(chatModel.call("Esta es una synopsis de una pelicula:\n\n" + synopsis + "\n\nEscribemela " +
+                "de nuevo, pero que no se parezca a la original, quedate con la historia y escribela como creas" +
+                " mas oportuno, no añadas nada mas aparte de la synopsis que generes."));
+        List<String> genreListString = tmdbService.getGenreNamesByIds((List<Integer>) tmdbMovies.get(i).get("genre_ids"));
+        movie.setGenre(genreListString);
+        Integer intValue = (Integer) tmdbMovies.get(i).get("id");
+        movie.setAgeRating(tmdbService.getMovieAgeRatingById(intValue.longValue()));
+        movie.setCoverImageUrl("https://image.tmdb.org/t/p/w1280" + tmdbMovies.get(i).get("poster_path"));
+        Integer getTimeMovie = (Integer) tmdbMovies.get(i).get("id");
+        Integer timeMovieInMinutes = tmdbService.getMovieDuration(getTimeMovie);
+        movie.setDuration(tmdbService.convertIntegerToLocalTime(timeMovieInMinutes));
+        movie.setPremiere(tmdbService.convertToLocalDate((String) tmdbMovies.get(i).get("release_date")));
+        Movie movieSaved = iMovieRepository.save(movie);
+
+        roomService.createRoom(movie);
+
+        return movieSaved;
     }
 
     public List<Movie> getAllMovies() {
