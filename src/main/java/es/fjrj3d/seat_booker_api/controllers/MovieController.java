@@ -16,16 +16,10 @@ public class MovieController {
     @Autowired
     MovieService movieService;
 
-    @PostMapping("/now")
+    @PostMapping
     public void createCinemaSchedule (){
         movieService.createMovieList();
     }
-
-//    @PostMapping
-//    public ResponseEntity<Movie> createMovie(@Valid @RequestBody Movie movie) {
-//        Movie createdMovie = movieService.createMovie(movie);
-//        return ResponseEntity.status(201).body(createdMovie);
-//    }
 
     @GetMapping
     public ResponseEntity<List<Movie>> getAllMovies() {
@@ -67,7 +61,7 @@ public class MovieController {
         }
     }
 
-    @DeleteMapping ("/now")
+    @DeleteMapping ("/all")
     public String deleteAllMovies (){
         return movieService.deleteAllMovies();
     }

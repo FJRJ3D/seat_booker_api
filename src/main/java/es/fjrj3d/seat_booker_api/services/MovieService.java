@@ -2,17 +2,12 @@ package es.fjrj3d.seat_booker_api.services;
 
 import es.fjrj3d.seat_booker_api.exceptions.MovieNotFoundException;
 import es.fjrj3d.seat_booker_api.models.Movie;
-import es.fjrj3d.seat_booker_api.models.Room;
-import es.fjrj3d.seat_booker_api.models.Screening;
 import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,12 +26,6 @@ public class MovieService {
 
     @Autowired
     OllamaChatModel chatModel;
-
-//    public Movie createMovie(Movie movie) {
-//        movie.setSynopsis(chatModel.call("Generame la sinopsis de la pelicula: " + movie.getTitle() + ", solo " +
-//                "el texto de la sinopsis, sin nada más, ni la palabra sipnosis ni nada"));
-//        return iMovieRepository.save(movie);
-//    }
 
     public void createMovieList (){
         for (int i = 0; i<15; i++){
