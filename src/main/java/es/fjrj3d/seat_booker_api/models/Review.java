@@ -26,7 +26,7 @@ public class Review {
     private String comment;
 
     @Column
-    private EMovieUserRating userRating;
+    private String userRating;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

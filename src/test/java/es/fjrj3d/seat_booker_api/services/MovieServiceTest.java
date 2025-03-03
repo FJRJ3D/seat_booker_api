@@ -1,9 +1,6 @@
 package es.fjrj3d.seat_booker_api.services;
 
 import es.fjrj3d.seat_booker_api.exceptions.MovieNotFoundException;
-import es.fjrj3d.seat_booker_api.models.EMovieAgeRating;
-import es.fjrj3d.seat_booker_api.models.EMovieGenre;
-import es.fjrj3d.seat_booker_api.models.EMovieUserRating;
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,9 +45,6 @@ class MovieServiceTest {
         interstellar.setTitle("Interstellar");
         interstellar.setSynopsis("Interstellar is a science fiction film directed by Christopher Nolan that explores" +
                 "themes of love.");
-        interstellar.setGenre(EMovieGenre.SCIENCE_FICTION);
-        interstellar.setAgeRating(EMovieAgeRating.SEVEN_PLUS);
-        interstellar.setUserRating(EMovieUserRating.FIVE_STARS);
         interstellar.setCoverImageUrl("https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg");
         interstellar.setDuration(LocalTime.of(2, 49));
         interstellar.setPremiere(LocalDate.of(2014, 11, 7));
@@ -60,9 +54,6 @@ class MovieServiceTest {
         titanic.setTitle("Titanic");
         titanic.setSynopsis("Titanic is a romantic drama directed by James Cameron, telling the story of Jack and" +
                 "Rose, two lovers from different social classes who meet aboard the ill-fated RMS Titanic.");
-        titanic.setGenre(EMovieGenre.DRAMA);
-        titanic.setAgeRating(EMovieAgeRating.EIGHTEEN_PLUS);
-        titanic.setUserRating(EMovieUserRating.FIVE_STARS);
         titanic.setCoverImageUrl("https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg");
         titanic.setDuration(LocalTime.of(3, 15));
         titanic.setPremiere(LocalDate.of(1997, 12, 19));
@@ -80,16 +71,13 @@ class MovieServiceTest {
         when(chatModel.call(anyString())).thenReturn("Interstellar is a science fiction film directed by " +
                 "Christopher Nolan that explores themes of love.");
 
-        Movie result = movieService.createMovie(interstellar);
+        Movie result = movieService.createMovie(1);
 
         assertNotNull(result);
         assertEquals(1, result.getId());
         assertEquals("Interstellar", result.getTitle());
         assertEquals("Interstellar is a science fiction film directed by Christopher Nolan that explores " +
                 "themes of love.", result.getSynopsis());
-        assertEquals(EMovieGenre.SCIENCE_FICTION, result.getGenre());
-        assertEquals(EMovieAgeRating.SEVEN_PLUS, result.getAgeRating());
-        assertEquals(EMovieUserRating.FIVE_STARS, result.getUserRating());
         assertEquals("https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg",
                 result.getCoverImageUrl());
         assertEquals(LocalTime.of(2, 49), result.getDuration());
@@ -110,9 +98,6 @@ class MovieServiceTest {
         assertEquals("Interstellar", interstellarResult.getTitle());
         assertEquals("Interstellar is a science fiction film directed by Christopher Nolan that explores" +
                 "themes of love.", interstellarResult.getSynopsis());
-        assertEquals(EMovieGenre.SCIENCE_FICTION, interstellarResult.getGenre());
-        assertEquals(EMovieAgeRating.SEVEN_PLUS, interstellarResult.getAgeRating());
-        assertEquals(EMovieUserRating.FIVE_STARS, interstellarResult.getUserRating());
         assertEquals("https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg",
                 interstellarResult.getCoverImageUrl());
         assertEquals(LocalTime.of(2, 49), interstellarResult.getDuration());
@@ -124,9 +109,6 @@ class MovieServiceTest {
         assertEquals("Titanic is a romantic drama directed by James Cameron, telling the story of Jack and" +
                 "Rose, two lovers from different social classes who meet aboard the ill-fated RMS Titanic.",
                 titanicResult.getSynopsis());
-        assertEquals(EMovieGenre.DRAMA, titanicResult.getGenre());
-        assertEquals(EMovieAgeRating.EIGHTEEN_PLUS, titanicResult.getAgeRating());
-        assertEquals(EMovieUserRating.FIVE_STARS, titanicResult.getUserRating());
         assertEquals("https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg",
                 titanicResult.getCoverImageUrl());
         assertEquals(LocalTime.of(3, 15), titanicResult.getDuration());
@@ -159,9 +141,6 @@ class MovieServiceTest {
         assertEquals("Interstellar", result.getTitle());
         assertEquals("Interstellar is a science fiction film directed by Christopher Nolan that explores" +
                 "themes of love.", result.getSynopsis());
-        assertEquals(EMovieGenre.SCIENCE_FICTION, result.getGenre());
-        assertEquals(EMovieAgeRating.SEVEN_PLUS, result.getAgeRating());
-        assertEquals(EMovieUserRating.FIVE_STARS, result.getUserRating());
         assertEquals("https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg",
                 result.getCoverImageUrl());
         assertEquals(LocalTime.of(2, 49), result.getDuration());

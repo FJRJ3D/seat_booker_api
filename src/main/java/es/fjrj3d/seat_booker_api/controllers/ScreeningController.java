@@ -1,6 +1,5 @@
 package es.fjrj3d.seat_booker_api.controllers;
 
-import es.fjrj3d.seat_booker_api.models.Room;
 import es.fjrj3d.seat_booker_api.models.Screening;
 import es.fjrj3d.seat_booker_api.services.RoomService;
 import es.fjrj3d.seat_booker_api.services.ScreeningService;
@@ -24,14 +23,6 @@ public class ScreeningController {
 
     @Autowired
     RoomService roomService;
-
-//    @PostMapping(path = "/{roomName}")
-//    public Screening createScreening(@RequestBody Screening screening, @PathVariable String roomName) {
-//        Screening createdScreening = screeningService.createScreening(screening, roomName);
-//        Room room = roomService.getRoomByName(roomName);
-//        seatService.createSeatsForScreening(createdScreening, room);
-//        return createdScreening;
-//    }
 
     @GetMapping
     public List<Screening> getAllScreenings() {

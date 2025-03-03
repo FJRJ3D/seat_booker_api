@@ -63,7 +63,7 @@ class RoomServiceTest {
         when(iRoomRepository.existsByRoomName("Room 2")).thenReturn(false);
         when(iRoomRepository.save(any(Room.class))).thenReturn(room2);
 
-        Room result = roomService.createRoom(room2, "Interstellar");
+        Room result = roomService.createRoom(new Movie());
 
         assertNotNull(result);
         assertEquals("Room 2", result.getRoomName());

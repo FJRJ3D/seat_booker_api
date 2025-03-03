@@ -70,9 +70,6 @@ class RoomControllerTest {
         interstellar.setTitle("Interstellar");
         interstellar.setSynopsis("Interstellar is a science fiction film directed by Christopher Nolan that explores " +
                 "themes of love.");
-        interstellar.setGenre(EMovieGenre.SCIENCE_FICTION);
-        interstellar.setAgeRating(EMovieAgeRating.SEVEN_PLUS);
-        interstellar.setUserRating(EMovieUserRating.FIVE_STARS);
         interstellar.setCoverImageUrl("https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg");
         interstellar.setDuration(LocalTime.of(2, 49));
         interstellar.setPremiere(LocalDate.of(2014, 11, 7));
@@ -80,7 +77,6 @@ class RoomControllerTest {
 
         room1 = new Room();
         room1.setRoomName("Room 1");
-        room1.setRoomType(ERoomType.STANDARD);
         room1.setRowQuantity(8);
         room1.setSeatQuantity(9);
         room1.setMovie(interstellar);
@@ -88,7 +84,6 @@ class RoomControllerTest {
 
         room2 = new Room();
         room2.setRoomName("Room 2");
-        room2.setRoomType(ERoomType.IMAX);
         room2.setRowQuantity(10);
         room2.setSeatQuantity(12);
         room2.setMovie(interstellar);

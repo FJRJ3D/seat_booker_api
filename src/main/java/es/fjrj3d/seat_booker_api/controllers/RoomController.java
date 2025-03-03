@@ -2,7 +2,6 @@ package es.fjrj3d.seat_booker_api.controllers;
 
 import es.fjrj3d.seat_booker_api.models.Room;
 import es.fjrj3d.seat_booker_api.services.RoomService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +16,6 @@ public class RoomController {
 
     @Autowired
     RoomService roomService;
-
-//    @PostMapping(path = "/{movieTitle}")
-//    public ResponseEntity<Room> createRoom(@Valid @RequestBody Room room, @PathVariable String movieTitle) {
-//        Room createdRoom = roomService.createRoom(room, movieTitle);
-//        return new ResponseEntity<>(createdRoom, HttpStatus.CREATED);
-//    }
 
     @GetMapping
     public ResponseEntity<List<Room>> getAllRooms() {

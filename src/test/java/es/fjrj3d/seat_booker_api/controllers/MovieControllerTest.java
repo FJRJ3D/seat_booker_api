@@ -69,9 +69,6 @@ class MovieControllerTest {
         interstellar.setTitle("Interstellar");
         interstellar.setSynopsis("Interstellar is a science fiction film directed by Christopher Nolan that explores " +
                 "themes of love.");
-        interstellar.setGenre(EMovieGenre.SCIENCE_FICTION);
-        interstellar.setAgeRating(EMovieAgeRating.SEVEN_PLUS);
-        interstellar.setUserRating(EMovieUserRating.FIVE_STARS);
         interstellar.setCoverImageUrl("https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg");
         interstellar.setDuration(LocalTime.of(2, 49));
         interstellar.setPremiere(LocalDate.of(2014, 11, 7));
@@ -81,9 +78,6 @@ class MovieControllerTest {
         titanic.setTitle("Titanic");
         titanic.setSynopsis("Titanic is a romantic drama directed by James Cameron, telling the story of Jack and " +
                 "Rose.");
-        titanic.setGenre(EMovieGenre.DRAMA);
-        titanic.setAgeRating(EMovieAgeRating.EIGHTEEN_PLUS);
-        titanic.setUserRating(EMovieUserRating.FIVE_STARS);
         titanic.setCoverImageUrl("https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg");
         titanic.setDuration(LocalTime.of(3, 15));
         titanic.setPremiere(LocalDate.of(1997, 12, 19));
