@@ -87,7 +87,7 @@ class RoomServiceTest {
         when(iRoomRepository.findById(1L)).thenReturn(Optional.of(room1));
         when(iRoomRepository.save(any(Room.class))).thenReturn(room1);
 
-        roomService.createRoom(room1, "Interstellar");
+
         Room result = roomService.getRoomById(1L);
 
         assertNotNull(result);

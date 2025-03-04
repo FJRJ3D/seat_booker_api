@@ -70,6 +70,9 @@ class RoomControllerTest {
         interstellar.setTitle("Interstellar");
         interstellar.setSynopsis("Interstellar is a science fiction film directed by Christopher Nolan that explores " +
                 "themes of love.");
+        interstellar.setGenre(List.of("Scify", "Adventure", "Romance"));
+        interstellar.setAgeRating("13");
+        interstellar.setUserRating("Sin calificación");
         interstellar.setCoverImageUrl("https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg");
         interstellar.setDuration(LocalTime.of(2, 49));
         interstellar.setPremiere(LocalDate.of(2014, 11, 7));
