@@ -12,18 +12,23 @@ import org.springframework.ai.ollama.OllamaChatModel;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-class MovieServiceTest {
+public class MovieServiceTest {
 
     @Mock
     private IMovieRepository iMovieRepository;
+
+    @Mock
+    private RoomService roomService;
+
+    @Mock
+    private TmdbService tmdbService;
 
     @Mock
     private OllamaChatModel chatModel;
@@ -31,195 +36,173 @@ class MovieServiceTest {
     @InjectMocks
     private MovieService movieService;
 
-    private Movie interstellar;
-    private Movie titanic;
-
-    private final List<Movie> movieList = new ArrayList<>();
-    private final List<String> movieTitles = new ArrayList<>();
-
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        interstellar = new Movie();
-        interstellar.setId(1L);
-        interstellar.setTitle("Interstellar");
-        interstellar.setSynopsis("Interstellar is a science fiction film directed by Christopher Nolan that explores" +
-                "themes of love.");
-        interstellar.setGenre(List.of("Scify", "Adventure", "Romance"));
-        interstellar.setAgeRating("13");
-        interstellar.setUserRating("Sin calificación");
-        interstellar.setCoverImageUrl("https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg");
-        interstellar.setDuration(LocalTime.of(2, 49));
-        interstellar.setPremiere(LocalDate.of(2014, 11, 7));
-
-        titanic = new Movie();
-        titanic.setId(2L);
-        titanic.setTitle("Titanic");
-        titanic.setSynopsis("Titanic is a romantic drama directed by James Cameron, telling the story of Jack and" +
-                "Rose, two lovers from different social classes who meet aboard the ill-fated RMS Titanic.");
-        titanic.setGenre(List.of("Historic", "Adventure", "Romance"));
-        titanic.setAgeRating("17");
-        titanic.setUserRating("Sin calificación");
-        titanic.setCoverImageUrl("https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg");
-        titanic.setDuration(LocalTime.of(3, 15));
-        titanic.setPremiere(LocalDate.of(1997, 12, 19));
-
-        movieList.add(interstellar);
-        movieList.add(titanic);
-
-        movieTitles.add(interstellar.getTitle());
-        movieTitles.add(titanic.getTitle());
+        when(chatModel.call(any(String.class))).thenReturn("rewritten synopsis");
+        when(iMovieRepository.save(any(Movie.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Test
-    void should_create_movie_when_valid_data_is_provided() {
-        when(iMovieRepository.save(any(Movie.class))).thenReturn(interstellar);
-        when(chatModel.call(anyString())).thenReturn("Interstellar is a science fiction film directed by " +
-                "Christopher Nolan that explores themes of love.");
+    public void test_create_movie() {
+        Map<String, Object> fakeMovieMap = new HashMap<>();
+        fakeMovieMap.put("title", "Fake Title");
+        fakeMovieMap.put("overview", "Fake overview");
+        fakeMovieMap.put("genre_ids", Arrays.asList(28, 12));
+        fakeMovieMap.put("id", 101);
+        fakeMovieMap.put("poster_path", "/fakeposter.jpg");
+        fakeMovieMap.put("release_date", "2023-01-01");
 
-        Movie result = movieService.createMovie(1);
+        List<Map<String, Object>> fakeMoviesList = new ArrayList<>();
+        fakeMoviesList.add(fakeMovieMap);
+        Map<String, Object> fakeTmdbResponse = new HashMap<>();
+        fakeTmdbResponse.put("results", fakeMoviesList);
 
-        assertNotNull(result);
-        assertEquals(1, result.getId());
-        assertEquals("Interstellar", result.getTitle());
-        assertEquals("Interstellar is a science fiction film directed by Christopher Nolan that explores " +
-                "themes of love.", result.getSynopsis());
-        assertEquals("https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg",
-                result.getCoverImageUrl());
-        assertEquals(LocalTime.of(2, 49), result.getDuration());
-        assertEquals(LocalDate.of(2014, 11, 7), result.getPremiere());
-        verify(iMovieRepository, times(1)).save(interstellar);
+        when(tmdbService.getNowPlayingMovies()).thenReturn(fakeTmdbResponse);
+        when(tmdbService.getGenreNamesByIds(Arrays.asList(28, 12)))
+                .thenReturn(Arrays.asList("Acción", "Aventura"));
+        when(tmdbService.getMovieAgeRatingById(101L)).thenReturn("18");
+        when(tmdbService.getMovieDuration(101)).thenReturn(120);
+        when(tmdbService.convertIntegerToLocalTime(120))
+                .thenReturn(LocalTime.of(2, 0));
+        when(tmdbService.convertToLocalDate("2023-01-01"))
+                .thenReturn(LocalDate.of(2023, 1, 1));
+
+        Movie result = movieService.createMovie(0);
+        assertEquals("Fake Title", result.getTitle());
+        assertEquals("rewritten synopsis", result.getSynopsis());
+        assertEquals(Arrays.asList("Acción", "Aventura"), result.getGenre());
+        assertEquals("18", result.getAgeRating());
+        assertEquals("https://image.tmdb.org/t/p/w1280/fakeposter.jpg", result.getCoverImageUrl());
+        assertEquals(LocalTime.of(2, 0), result.getDuration());
+        assertEquals(LocalDate.of(2023, 1, 1), result.getPremiere());
+        verify(roomService).createRoom(any(Movie.class));
     }
 
     @Test
-    void should_return_all_movies() {
-        when(iMovieRepository.findAll()).thenReturn(movieList);
+    public void test_create_movie_list() {
+        List<Map<String, Object>> fakeMoviesList = new ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+            Map<String, Object> movieMap = new HashMap<>();
+            movieMap.put("title", "Title " + i);
+            movieMap.put("overview", "Overview " + i);
+            movieMap.put("genre_ids", Arrays.asList(28, 12));
+            movieMap.put("id", 100 + i);
+            movieMap.put("poster_path", "/poster" + i + ".jpg");
+            movieMap.put("release_date", "2023-01-0" + ((i % 9) + 1));
+            fakeMoviesList.add(movieMap);
+        }
+        Map<String, Object> fakeTmdbResponse = new HashMap<>();
+        fakeTmdbResponse.put("results", fakeMoviesList);
+        when(tmdbService.getNowPlayingMovies()).thenReturn(fakeTmdbResponse);
+        when(tmdbService.getGenreNamesByIds(Arrays.asList(28, 12)))
+                .thenReturn(Arrays.asList("Acción", "Aventura"));
+        when(tmdbService.getMovieAgeRatingById(anyLong())).thenReturn("18");
+        when(tmdbService.getMovieDuration(anyInt())).thenReturn(120);
+        when(tmdbService.convertIntegerToLocalTime(120))
+                .thenReturn(LocalTime.of(2, 0));
+        when(tmdbService.convertToLocalDate(anyString()))
+                .thenReturn(LocalDate.of(2023, 1, 1));
 
+        movieService.createMovieList();
+        verify(iMovieRepository, times(15)).save(any(Movie.class));
+        verify(roomService, times(15)).createRoom(any(Movie.class));
+    }
+
+    @Test
+    public void test_get_all_movies() {
+        List<Movie> movies = new ArrayList<>();
+        movies.add(new Movie());
+        movies.add(new Movie());
+        when(iMovieRepository.findAll()).thenReturn(movies);
         List<Movie> result = movieService.getAllMovies();
-
-        assertEquals(2, result.size());
-
-        Movie interstellarResult = result.get(0);
-        assertEquals(1L, interstellarResult.getId());
-        assertEquals("Interstellar", interstellarResult.getTitle());
-        assertEquals("Interstellar is a science fiction film directed by Christopher Nolan that explores" +
-                "themes of love.", interstellarResult.getSynopsis());
-        assertEquals("https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg",
-                interstellarResult.getCoverImageUrl());
-        assertEquals(LocalTime.of(2, 49), interstellarResult.getDuration());
-        assertEquals(LocalDate.of(2014, 11, 7), interstellarResult.getPremiere());
-
-        Movie titanicResult = result.get(1);
-        assertEquals(2L, titanicResult.getId());
-        assertEquals("Titanic", titanicResult.getTitle());
-        assertEquals("Titanic is a romantic drama directed by James Cameron, telling the story of Jack and" +
-                "Rose, two lovers from different social classes who meet aboard the ill-fated RMS Titanic.",
-                titanicResult.getSynopsis());
-        assertEquals("https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg",
-                titanicResult.getCoverImageUrl());
-        assertEquals(LocalTime.of(3, 15), titanicResult.getDuration());
-        assertEquals(LocalDate.of(1997, 12, 19), titanicResult.getPremiere());
-
-        verify(iMovieRepository, times(1)).findAll();
+        assertEquals(movies, result);
     }
 
     @Test
-    void should_return_all_title_movies() {
-        when(iMovieRepository.getAllMoviesTitles()).thenReturn(movieTitles);
-
+    public void test_get_all_movies_titles() {
+        List<String> titles = Arrays.asList("Movie1", "Movie2");
+        when(iMovieRepository.getAllMoviesTitles()).thenReturn(titles);
         List<String> result = movieService.getAllMoviesTitles();
-
-        assertEquals(2, result.size());
-        assertEquals("Interstellar", result.get(0));
-        assertEquals("Titanic", result.get(1));
-
-        verify(iMovieRepository, times(1)).getAllMoviesTitles();
+        assertEquals(titles, result);
     }
 
     @Test
-    void should_return_movie_by_id() {
-        when(iMovieRepository.findById(1L)).thenReturn(Optional.of(interstellar));
-
+    public void test_get_movie_by_id_found() {
+        Movie movie = new Movie();
+        movie.setTitle("Found Movie");
+        when(iMovieRepository.findById(1L)).thenReturn(Optional.of(movie));
         Movie result = movieService.getMovieById(1L);
-
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("Interstellar", result.getTitle());
-        assertEquals("Interstellar is a science fiction film directed by Christopher Nolan that explores" +
-                "themes of love.", result.getSynopsis());
-        assertEquals("https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg",
-                result.getCoverImageUrl());
-        assertEquals(LocalTime.of(2, 49), result.getDuration());
-        assertEquals(LocalDate.of(2014, 11, 7), result.getPremiere());
-
-        verify(iMovieRepository, times(1)).findById(1L);
+        assertEquals("Found Movie", result.getTitle());
     }
 
     @Test
-    void should_throw_exception_when_movie_not_found_by_id() {
-        when(iMovieRepository.findById(3L)).thenReturn(Optional.empty());
-
-        assertThrows(MovieNotFoundException.class, () -> movieService.getMovieById(3L));
-
-        verify(iMovieRepository, times(1)).findById(3L);
+    public void test_get_movie_by_id_not_found() {
+        when(iMovieRepository.findById(1L)).thenReturn(Optional.empty());
+        Exception exception = assertThrows(MovieNotFoundException.class, () -> {
+            movieService.getMovieById(1L);
+        });
+        assertEquals("Movie not found with ID: 1", exception.getMessage());
     }
 
     @Test
-    void should_update_movie_when_movie_exists() {
-        when(iMovieRepository.findById(1L)).thenReturn(Optional.of(interstellar));
-        interstellar.setTitle("Interstellar Updated");
-        when(iMovieRepository.save(interstellar)).thenReturn(interstellar);
+    public void test_update_movie() {
+        Movie existingMovie = new Movie();
+        existingMovie.setTitle("Old Title");
+        when(iMovieRepository.findById(1L)).thenReturn(Optional.of(existingMovie));
 
-        Movie result = movieService.updateMovie(interstellar, 1L);
+        Movie updateData = new Movie();
+        updateData.setTitle("New Title");
+        updateData.setSynopsis("New Synopsis");
 
-        assertEquals("Interstellar Updated", result.getTitle());
-        verify(iMovieRepository, times(1)).save(interstellar);
+        Movie updatedMovie = movieService.updateMovie(updateData, 1L);
+        assertEquals("New Title", updatedMovie.getTitle());
+        assertEquals("New Synopsis", updatedMovie.getSynopsis());
     }
 
     @Test
-    void should_throw_exception_when_updating_non_existing_movie() {
-        when(iMovieRepository.findById(4L)).thenReturn(Optional.empty());
-
-        assertThrows(MovieNotFoundException.class, () -> movieService.updateMovie(titanic, 4L));
-        verify(iMovieRepository, times(0)).save(any(Movie.class));
-    }
-
-    @Test
-    void should_throw_exception_when_movie_not_found_for_deletion() {
-        when(iMovieRepository.existsById(3L)).thenReturn(false);
-
-        assertThrows(MovieNotFoundException.class, () -> movieService.deleteMovie(3L));
-        verify(iMovieRepository, times(1)).existsById(3L);
-    }
-
-    @Test
-    void should_delete_movie_when_exists() {
-        when(iMovieRepository.existsById(2L)).thenReturn(true);
-
-        String result = movieService.deleteMovie(2L);
-
+    public void test_delete_movie_found() {
+        when(iMovieRepository.existsById(1L)).thenReturn(true);
+        String result = movieService.deleteMovie(1L);
         assertEquals("Movie was successfully deleted", result);
-        verify(iMovieRepository, times(1)).deleteById(2L);
+        verify(iMovieRepository).deleteById(1L);
     }
 
     @Test
-    void should_delete_movies_when_all_ids_exist() {
-        when(iMovieRepository.findAllById(List.of(1L, 2L))).thenReturn(movieList);
+    public void test_delete_movie_not_found() {
+        when(iMovieRepository.existsById(1L)).thenReturn(false);
+        Exception exception = assertThrows(MovieNotFoundException.class, () -> {
+            movieService.deleteMovie(1L);
+        });
+        assertEquals("Movie not found with ID: 1", exception.getMessage());
+    }
 
-        String result = movieService.deleteMoviesByIds(List.of(1L, 2L));
-
+    @Test
+    public void test_delete_movies_by_ids_success() {
+        List<Long> movieIds = Arrays.asList(1L, 2L, 3L);
+        List<Movie> movies = Arrays.asList(new Movie(), new Movie(), new Movie());
+        when(iMovieRepository.findAllById(movieIds)).thenReturn(movies);
+        String result = movieService.deleteMoviesByIds(movieIds);
         assertEquals("Movies were successfully deleted", result);
-        verify(iMovieRepository, times(1)).deleteAll(movieList);
+        verify(iMovieRepository).deleteAll(movies);
     }
 
     @Test
-    void should_throw_exception_when_any_movie_id_does_not_exist() {
-        List<Long> idsToDelete = List.of(1L, 3L);
-        when(iMovieRepository.findAllById(List.of(1L, 3L))).thenReturn(List.of(interstellar));
+    public void test_delete_movies_by_ids_not_all_found() {
+        List<Long> movieIds = Arrays.asList(1L, 2L, 3L);
+        List<Movie> movies = Arrays.asList(new Movie(), new Movie());
+        when(iMovieRepository.findAllById(movieIds)).thenReturn(movies);
+        Exception exception = assertThrows(MovieNotFoundException.class, () -> {
+            movieService.deleteMoviesByIds(movieIds);
+        });
+        assertEquals("Some movies not found", exception.getMessage());
+    }
 
-        assertThrows(MovieNotFoundException.class, () -> movieService.deleteMoviesByIds(idsToDelete));
-
-        verify(iMovieRepository, times(1)).findAllById(idsToDelete);
-        verify(iMovieRepository, never()).deleteById(anyLong());
+    @Test
+    public void test_delete_all_movies() {
+        String result = movieService.deleteAllMovies();
+        assertEquals("Movies were successfully deleted", result);
+        verify(iMovieRepository).deleteAll();
     }
 }
