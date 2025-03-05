@@ -32,7 +32,7 @@ public class TmdbServiceTest {
     }
 
     @Test
-    public void testGetNowPlayingMovies() {
+    public void test_get_now_playing_movies_should_return_valid_result() {
         Map<String, Object> fakeResponse = new HashMap<>();
         fakeResponse.put("result", "ok");
 
@@ -43,7 +43,7 @@ public class TmdbServiceTest {
     }
 
     @Test
-    public void testGetGenreNamesByIds() {
+    public void test_get_genre_names_by_ids_should_return_correct_names() {
         List<Integer> ids = Arrays.asList(28, 12, 999);
         List<String> expected = Arrays.asList("Acción", "Aventura", "Género desconocido");
         List<String> actual = tmdbService.getGenreNamesByIds(ids);
@@ -51,7 +51,7 @@ public class TmdbServiceTest {
     }
 
     @Test
-    public void testConvertToLocalDate() {
+    public void test_convert_to_local_date_should_return_correct_date() {
         String dateStr = "2023-03-01";
         LocalDate expected = LocalDate.of(2023, 3, 1);
         LocalDate actual = tmdbService.convertToLocalDate(dateStr);
@@ -59,7 +59,7 @@ public class TmdbServiceTest {
     }
 
     @Test
-    public void testGetMovieDuration() {
+    public void test_get_movie_duration_should_return_correct_duration() {
         Integer movieId = 123;
         Map<String, Object> fakeResponse = new HashMap<>();
         fakeResponse.put("runtime", 120);
@@ -71,7 +71,7 @@ public class TmdbServiceTest {
     }
 
     @Test
-    public void testConvertIntegerToLocalTime() {
+    public void test_convert_integer_to_local_time_should_return_correct_time() {
         int minutes = 125;
         LocalTime expected = LocalTime.of(2, 5);
         LocalTime actual = tmdbService.convertIntegerToLocalTime(minutes);
@@ -79,7 +79,7 @@ public class TmdbServiceTest {
     }
 
     @Test
-    public void testGetMovieAgeRatingByIdFound() {
+    public void test_get_movie_age_rating_by_id_found_should_return_valid_rating() {
         Long movieId = 456L;
 
         Map<String, Object> releaseDateEntry = new HashMap<>();
@@ -105,7 +105,7 @@ public class TmdbServiceTest {
     }
 
     @Test
-    public void testGetMovieAgeRatingByIdNotFound() {
+    public void test_get_movie_age_rating_by_id_not_found_should_return_default_rating() {
         Long movieId = 456L;
         Map<String, Object> countryData = new HashMap<>();
         countryData.put("iso_3166_1", "US");
@@ -124,7 +124,7 @@ public class TmdbServiceTest {
     }
 
     @Test
-    public void testGetMovieAgeRatingByIdNullResponse() {
+    public void test_get_movie_age_rating_by_id_null_response_should_return_default_rating() {
         Long movieId = 456L;
         when(restTemplate.getForObject(any(String.class), eq(Map.class))).thenReturn(null);
         String certification = tmdbService.getMovieAgeRatingById(movieId);

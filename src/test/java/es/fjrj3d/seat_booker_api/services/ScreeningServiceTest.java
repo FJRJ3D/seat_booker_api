@@ -51,7 +51,7 @@ public class ScreeningServiceTest {
     public void test_create_screening() {
         Room room = new Room();
         Movie movie = new Movie();
-        movie.setDuration(LocalTime.of(2, 0)); // 120 minutes
+        movie.setDuration(LocalTime.of(2, 0));
         when(iScreeningRepository.save(any(Screening.class))).thenAnswer(invocation -> invocation.getArgument(0));
         doNothing().when(seatService).createSeatsForScreening(any(Screening.class), eq(room));
         screeningService.createScreening(room, movie);
