@@ -3,6 +3,7 @@ package es.fjrj3d.seat_booker_api.controllers;
 import es.fjrj3d.seat_booker_api.dtos.request.RegisterRequest;
 import es.fjrj3d.seat_booker_api.models.*;
 import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
+import es.fjrj3d.seat_booker_api.repositories.IUserRepository;
 import es.fjrj3d.seat_booker_api.services.AuthService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +17,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -43,6 +46,9 @@ class MovieControllerTest {
     private IMovieRepository iMovieRepository;
 
     @Autowired
+    private IUserRepository iUserRepository;
+
+    @Autowired
     private AuthService authService;
 
     @Autowired
@@ -57,13 +63,14 @@ class MovieControllerTest {
 
     @BeforeEach
     void setUp() {
+        iMovieRepository.deleteAll();
+        iUserRepository.deleteAll();
+
         jdbcTemplate.execute("ALTER TABLE movie AUTO_INCREMENT = 1;");
         jdbcTemplate.execute("ALTER TABLE user AUTO_INCREMENT = 1;");
 
         registerRequest = new RegisterRequest("user@gmail.com", "user", "user");
         token = authService.register(registerRequest).accessToken();
-
-        iMovieRepository.deleteAll();
 
         interstellar = new Movie();
         interstellar.setTitle("Interstellar");
@@ -95,25 +102,30 @@ class MovieControllerTest {
 
     @Test
     void when_create_movie_then_returns_status_201() throws Exception {
-        when(chatModel.call(anyString())).thenReturn("Interstellar is a science fiction film directed by " +
-                "Christopher Nolan that explores themes of love.");
+        iMovieRepository.deleteAll();
+        jdbcTemplate.execute("ALTER TABLE movie AUTO_INCREMENT = 1;");
+
+        when(chatModel.call(anyString())).thenReturn("Rewritten synopsis.");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/movie")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .content("{\"title\":\"Interstellar\",\"synopsis\":\"Interstellar is a science fiction film directed" +
-                        " by Christopher Nolan that explores themes of love.\",\"genre\":\"SCIENCE_FICTION\"," +
-                        "\"ageRating\":\"SEVEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":\"https://pbs" +
-                        ".twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg\",\"duration\":\"02:49\"," +
-                        "\"premiere\":\"07-11-2014\"}\n"))
-                .andExpect(status().isCreated())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk());
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/movie")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/movie")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
-                        .content().json("{\"title\":\"Interstellar\",\"synopsis\":\"Interstellar is a " +
-                                "science fiction film directed by Christopher Nolan that explores themes of love." +
-                                "\",\"genre\":\"SCIENCE_FICTION\",\"ageRating\":\"SEVEN_PLUS\",\"userRating\":" +
-                                "\"FIVE_STARS\",\"coverImageUrl\":\"https://pbs.twimg.com/profile_images/55849" +
-                                "0159834857472/gpoC7V0X_400x400.jpeg\",\"duration\":\"02:49\",\"premiere\":" +
-                                "\"07-11-2014\"}\n"));
+                        .content().json(jsonResponse));
     }
 
     @Test

@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +42,14 @@ public class RoomService {
         seatQuantity(room, generatedRoomName);
 
         room.setMovie(movie);
+
+        if (movie.getRooms() == null) {
+            movie.setRooms(new HashSet<>());
+        }
+        movie.getRooms().add(room);
+
         Room roomSaved = iRoomRepository.save(room);
+
         screeningService.createScreening(room, movie);
 
         return roomSaved;

@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,6 +62,12 @@ public class ScreeningService {
             screening.setDuration(Duration.between(LocalTime.MIN, movie.getDuration()));
 
             screening.setRoom(room);
+
+            if (room.getScreenings() == null) {
+                room.setScreenings(new ArrayList<>());
+            }
+            room.getScreenings().add(screening);
+
             iScreeningRepository.save(screening);
 
             seatService.createSeatsForScreening(screening, room);
