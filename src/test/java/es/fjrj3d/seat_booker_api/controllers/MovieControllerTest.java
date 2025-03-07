@@ -113,9 +113,6 @@ class MovieControllerTest {
                 .andReturn();
 
         String jsonResponse = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        System.out.println("-----------------------------------------------------------");
-        System.out.println(jsonResponse);
-        System.out.println("-----------------------------------------------------------");
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/movie")
                         .contentType(MediaType.APPLICATION_JSON)
