@@ -130,6 +130,7 @@ class MovieControllerTest {
 
     @Test
     void when_create_movie_with_null_title_then_returns_status_400() throws Exception {
+        when(chatModel.call(anyString())).thenReturn("Rewritten synopsis.");
         mockMvc.perform(MockMvcRequestBuilders.post("/api/movie")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
@@ -150,16 +151,28 @@ class MovieControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
-                        .content().json("[{\"title\":\"Interstellar\",\"synopsis\":\"Interstellar is a " +
-                                "science fiction film directed by Christopher Nolan that explores themes of love." +
-                                "\",\"genre\":\"SCIENCE_FICTION\",\"ageRating\":\"SEVEN_PLUS\",\"userRating\":" +
-                                "\"FIVE_STARS\",\"coverImageUrl\":\"https://pbs.twimg.com/profile_images/55849015" +
-                                "9834857472/gpoC7V0X_400x400.jpeg\",\"duration\":\"02:49\",\"premiere\":" +
-                                "\"07-11-2014\"},{\"title\":\"Titanic\",\"synopsis\":\"Titanic is a romantic drama " +
-                                "directed by James Cameron, telling the story of Jack and Rose.\",\"genre\":\"DRAMA\"" +
-                                ",\"ageRating\":\"EIGHTEEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":" +
-                                "\"https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg\",\"duration\":" +
-                                "\"03:15\",\"premiere\":\"19-12-1997\"}]\n"));
+                        .content().json("[\n" +
+                                "  {\n" +
+                                "    \"title\": \"Interstellar\",\n" +
+                                "    \"synopsis\": \"Interstellar is a science fiction film directed by Christopher Nolan that explores themes of love.\",\n" +
+                                "    \"genre\": [\"Scify\", \"Adventure\", \"Romance\"],\n" +
+                                "    \"ageRating\": \"13\",\n" +
+                                "    \"userRating\": \"Sin calificación\",\n" +
+                                "    \"coverImageUrl\": \"https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg\",\n" +
+                                "    \"duration\": \"02:49\",\n" +
+                                "    \"premiere\": \"07-11-2014\"\n" +
+                                "  },\n" +
+                                "  {\n" +
+                                "    \"title\": \"Titanic\",\n" +
+                                "    \"synopsis\": \"Titanic is a romantic drama directed by James Cameron, telling the story of Jack and Rose.\",\n" +
+                                "    \"genre\": [\"Historic\", \"Adventure\", \"Romance\"],\n" +
+                                "    \"ageRating\": \"17\",\n" +
+                                "    \"userRating\": \"Sin calificación\",\n" +
+                                "    \"coverImageUrl\": \"https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg\",\n" +
+                                "    \"duration\": \"03:15\",\n" +
+                                "    \"premiere\": \"19-12-1997\"\n" +
+                                "  }\n" +
+                                "]\n\n"));
     }
 
     @Test
@@ -201,12 +214,16 @@ class MovieControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
-                        .content().json("{\"title\":\"Interstellar\",\"synopsis\":\"Interstellar is a " +
-                                "science fiction film directed by Christopher Nolan that explores themes of love.\"," +
-                                "\"genre\":\"SCIENCE_FICTION\",\"ageRating\":\"SEVEN_PLUS\",\"userRating\":" +
-                                "\"FIVE_STARS\",\"coverImageUrl\":\"https://pbs.twimg.com/profile_images/55849" +
-                                "0159834857472/gpoC7V0X_400x400.jpeg\",\"duration\":\"02:49\",\"premiere\":\"" +
-                                "07-11-2014\"}\n"));
+                        .content().json("{\n" +
+                                "    \"title\": \"Interstellar\",\n" +
+                                "    \"synopsis\": \"Interstellar is a science fiction film directed by Christopher Nolan that explores themes of love.\",\n" +
+                                "    \"genre\": [\"Scify\", \"Adventure\", \"Romance\"],\n" +
+                                "    \"ageRating\": \"13\",\n" +
+                                "    \"userRating\": \"Sin calificación\",\n" +
+                                "    \"coverImageUrl\": \"https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg\",\n" +
+                                "    \"duration\": \"02:49\",\n" +
+                                "    \"premiere\": \"07-11-2014\"\n" +
+                                "  }\n"));
     }
 
     @Test
@@ -228,11 +245,16 @@ class MovieControllerTest {
                         .content("{\"title\":\"Inception\"}"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
-                        .content().json("{\"title\":\"Inception\",\"synopsis\":\"Titanic is a romantic " +
-                                "drama directed by James Cameron, telling the story of Jack and Rose.\",\"genre\":" +
-                                "\"DRAMA\",\"ageRating\":\"EIGHTEEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"" +
-                                "coverImageUrl\":\"https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_" +
-                                "poster.jpg\",\"duration\":\"03:15\",\"premiere\":\"19-12-1997\"}\n"));
+                        .content().json("{\n" +
+                                "    \"title\": \"Inception\",\n" +
+                                "    \"synopsis\": \"Titanic is a romantic drama directed by James Cameron, telling the story of Jack and Rose.\",\n" +
+                                "    \"genre\": [\"Historic\", \"Adventure\", \"Romance\"],\n" +
+                                "    \"ageRating\": \"17\",\n" +
+                                "    \"userRating\": \"Sin calificación\",\n" +
+                                "    \"coverImageUrl\": \"https://upload.wikimedia.org/wikipedia/en/2/22/Titanic_poster.jpg\",\n" +
+                                "    \"duration\": \"03:15\",\n" +
+                                "    \"premiere\": \"19-12-1997\"\n" +
+                                "  }\n"));
     }
 
     @Test
