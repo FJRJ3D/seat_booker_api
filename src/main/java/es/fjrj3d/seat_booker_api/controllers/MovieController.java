@@ -3,6 +3,7 @@ package es.fjrj3d.seat_booker_api.controllers;
 import es.fjrj3d.seat_booker_api.models.Movie;
 import es.fjrj3d.seat_booker_api.services.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +18,9 @@ public class MovieController {
     MovieService movieService;
 
     @PostMapping
-    public void createCinemaSchedule (){
-        movieService.createMovieList();
+    public ResponseEntity<List<Movie>> createCinemaSchedule() {
+        List<Movie> movieList = movieService.createMovieList();
+        return ResponseEntity.status(HttpStatus.CREATED).body(movieList);
     }
 
     @GetMapping

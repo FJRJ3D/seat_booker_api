@@ -107,15 +107,10 @@ class MovieControllerTest {
 
         when(chatModel.call(anyString())).thenReturn("Rewritten synopsis.");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/movie")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/movie")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
-                .andExpect(status().isOk());
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/api/movie")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         String jsonResponse = result.getResponse().getContentAsString(StandardCharsets.UTF_8);

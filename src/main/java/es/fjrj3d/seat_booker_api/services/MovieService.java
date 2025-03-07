@@ -27,10 +27,11 @@ public class MovieService {
     @Autowired
     OllamaChatModel chatModel;
 
-    public void createMovieList (){
+    public List<Movie> createMovieList (){
         for (int i = 0; i<15; i++){
             createMovie(i);
         }
+        return iMovieRepository.findAll();
     }
 
     public Movie createMovie(int i) {
