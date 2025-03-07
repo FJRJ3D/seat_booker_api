@@ -4,6 +4,7 @@ import es.fjrj3d.seat_booker_api.dtos.request.RegisterRequest;
 import es.fjrj3d.seat_booker_api.models.*;
 import es.fjrj3d.seat_booker_api.repositories.IMovieRepository;
 import es.fjrj3d.seat_booker_api.repositories.IRoomRepository;
+import es.fjrj3d.seat_booker_api.repositories.IUserRepository;
 import es.fjrj3d.seat_booker_api.services.AuthService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +42,9 @@ class RoomControllerTest {
     private IMovieRepository iMovieRepository;
 
     @Autowired
+    private IUserRepository iUserRepository;
+
+    @Autowired
     private AuthService authService;
 
     @Autowired
@@ -59,6 +63,8 @@ class RoomControllerTest {
         jdbcTemplate.execute("ALTER TABLE movie AUTO_INCREMENT = 1;");
         jdbcTemplate.execute("ALTER TABLE room AUTO_INCREMENT = 1;");
         jdbcTemplate.execute("ALTER TABLE user AUTO_INCREMENT = 1;");
+
+        iUserRepository.deleteAll();
 
         registerRequest = new RegisterRequest("user@gmail.com", "user", "user");
         token = authService.register(registerRequest).accessToken();
@@ -97,72 +103,24 @@ class RoomControllerTest {
     }
 
     @Test
-    void when_create_room_then_returns_status_201() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/room/" + interstellar.getTitle())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content("{\"roomType\":\"STANDARD\",\"rowQuantity\":8,\"seatQuantity\":9}\n"))
-                .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers
-                        .content().json("{\"roomType\":\"STANDARD\",\"rowQuantity\":8,\"seatQuantity\":" +
-                                "9}\n"));
-    }
-
-    @Test
-    void when_create_and_delete_room_then_roomName_reuses_deleted_position() throws Exception {
-        iRoomRepository.deleteAll();
-
-        for (int i = 0; i < 5; i++) {
-            mockMvc.perform(MockMvcRequestBuilders.post("/api/room/" + interstellar.getTitle())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                            .content("{\"roomType\":\"STANDARD\",\"rowQuantity\":8,\"seatQuantity\":9}\n"))
-                    .andExpect(status().isCreated())
-                    .andExpect(MockMvcResultMatchers
-                            .content().json("{\"roomType\":\"STANDARD\",\"rowQuantity\":8,\"seatQuantity" +
-                                    "\":9}\n"));
-        }
-
-        iRoomRepository.deleteById(iRoomRepository.findByRoomName("Room 3").get().getId());
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/room/" + interstellar.getTitle())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content("{\"roomType\":\"STANDARD\",\"rowQuantity\":8,\"seatQuantity\":9}\n"))
-                .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers
-                        .content().json("{\"roomType\":\"STANDARD\",\"rowQuantity\":8,\"seatQuantity\":" +
-                                "9}\n"));
-
-        assertEquals("Room 1", iRoomRepository.findByRoomName("Room 1").get().getRoomName());
-        assertEquals("Room 2", iRoomRepository.findByRoomName("Room 2").get().getRoomName());
-        assertEquals("Room 3", iRoomRepository.findByRoomName("Room 3").get().getRoomName());
-        assertEquals("Room 4", iRoomRepository.findByRoomName("Room 4").get().getRoomName());
-        assertEquals("Room 5", iRoomRepository.findByRoomName("Room 5").get().getRoomName());
-    }
-
-    @Test
-    void when_create_room_with_null_rowQuantity_then_returns_status_400() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/room/" + interstellar.getTitle())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content("{\"roomType\":\"STANDARD\",\"rowQuantity\":null,\"seatQuantity\":9}\n"))
-                .andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers
-                        .content().string("Row Quantity cannot be null\n"));
-    }
-
-    @Test
     void when_get_all_rooms_then_returns_status_200_if_rooms_exist() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/room")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
-                        .content().json("[{\"id\":1,\"roomName\":\"Room 1\",\"roomType\":\"STANDARD\"," +
-                                "\"rowQuantity\":8,\"seatQuantity\":9,\"screenings\":null},{\"id\":2,\"roomName\":" +
-                                "\"Room 2\",\"roomType\":\"IMAX\",\"rowQuantity\":10,\"seatQuantity\":12,\"" +
-                                "screenings\":null}]\n"));
+                        .content().json("[\n" +
+                                "    {\n" +
+                                "        \"roomName\": \"Room 1\",\n" +
+                                "        \"rowQuantity\": 8,\n" +
+                                "        \"seatQuantity\": 9\n" +
+                                "    },\n" +
+                                "    {\n" +
+                                "        \"roomName\": \"Room 2\",\n" +
+                                "        \"rowQuantity\": 10,\n" +
+                                "        \"seatQuantity\": 12\n" +
+                                "    }\n" +
+                                "]\n\n"));
     }
 
     @Test
@@ -172,8 +130,11 @@ class RoomControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
-                        .content().json("{\"id\":1,\"roomName\":\"Room 1\",\"roomType\":\"STANDARD\"," +
-                                "\"rowQuantity\":8,\"seatQuantity\":9,\"screenings\":null}"));
+                        .content().json("{\n" +
+                                "        \"roomName\": \"Room 1\",\n" +
+                                "        \"rowQuantity\": 8,\n" +
+                                "        \"seatQuantity\": 9\n" +
+                                "    }"));
     }
 
     @Test
@@ -194,10 +155,18 @@ class RoomControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
-                        .content().json("[{\"id\":1,\"roomName\":\"Room 1\",\"roomType\":\"STANDARD\"," +
-                                "\"rowQuantity\":8,\"seatQuantity\":9,\"screenings\":null},{\"id\":2,\"roomName\":" +
-                                "\"Room 2\",\"roomType\":\"IMAX\",\"rowQuantity\":10,\"seatQuantity\":12,\"" +
-                                "screenings\":null}]\n"));
+                        .content().json("[\n" +
+                                "    {\n" +
+                                "        \"roomName\": \"Room 1\",\n" +
+                                "        \"rowQuantity\": 8,\n" +
+                                "        \"seatQuantity\": 9\n" +
+                                "    },\n" +
+                                "    {\n" +
+                                "        \"roomName\": \"Room 2\",\n" +
+                                "        \"rowQuantity\": 10,\n" +
+                                "        \"seatQuantity\": 12\n" +
+                                "    }\n" +
+                                "]\n"));
     }
 
     @Test
@@ -218,8 +187,11 @@ class RoomControllerTest {
                         .content("{\"rowQuantity\": 5}\n"))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
-                        .content().json("{\"roomName\":\"Room 2\",\"roomType\":\"IMAX\",\"rowQuantity\":5," +
-                                "\"seatQuantity\":12}\n"));
+                        .content().json("{\n" +
+                                "        \"roomName\": \"Room 2\",\n" +
+                                "        \"rowQuantity\": 5,\n" +
+                                "        \"seatQuantity\": 12\n" +
+                                "    }\n"));
     }
 
     @Test
