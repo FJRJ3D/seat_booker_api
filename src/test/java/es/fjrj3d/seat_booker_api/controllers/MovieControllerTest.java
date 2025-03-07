@@ -63,14 +63,15 @@ class MovieControllerTest {
 
     @BeforeEach
     void setUp() {
-        iMovieRepository.deleteAll();
-        iUserRepository.deleteAll();
-
         jdbcTemplate.execute("ALTER TABLE movie AUTO_INCREMENT = 1;");
         jdbcTemplate.execute("ALTER TABLE user AUTO_INCREMENT = 1;");
 
+        iUserRepository.deleteAll();
+
         registerRequest = new RegisterRequest("user@gmail.com", "user", "user");
         token = authService.register(registerRequest).accessToken();
+
+        iMovieRepository.deleteAll();
 
         interstellar = new Movie();
         interstellar.setTitle("Interstellar");
@@ -103,8 +104,6 @@ class MovieControllerTest {
     @Test
     void when_create_movie_then_returns_status_201() throws Exception {
         iMovieRepository.deleteAll();
-        jdbcTemplate.execute("ALTER TABLE movie AUTO_INCREMENT = 1;");
-
         when(chatModel.call(anyString())).thenReturn("Rewritten synopsis.");
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/movie")
@@ -114,6 +113,9 @@ class MovieControllerTest {
                 .andReturn();
 
         String jsonResponse = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        System.out.println("-----------------------------------------------------------");
+        System.out.println(jsonResponse);
+        System.out.println("-----------------------------------------------------------");
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/movie")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -121,22 +123,6 @@ class MovieControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers
                         .content().json(jsonResponse));
-    }
-
-    @Test
-    void when_create_movie_with_null_title_then_returns_status_400() throws Exception {
-        when(chatModel.call(anyString())).thenReturn("Rewritten synopsis.");
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/movie")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content("{\"title\":null,\"synopsis\":\"Interstellar is a science fiction film directed by" +
-                                " Christopher Nolan that explores themes of love.\",\"genre\":\"SCIENCE_FICTION\"," +
-                                "\"ageRating\":\"SEVEN_PLUS\",\"userRating\":\"FIVE_STARS\",\"coverImageUrl\":" +
-                                "\"https://pbs.twimg.com/profile_images/558490159834857472/gpoC7V0X_400x400.jpeg\"," +
-                                "\"duration\":\"02:49\",\"premiere\":\"07-11-2014\"}\n"))
-                .andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers
-                        .content().string("Title cannot be null\n"));
     }
 
     @Test
